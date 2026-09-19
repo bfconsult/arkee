@@ -1,6 +1,14 @@
 <?php
 
+use App\Http\Controllers\CatalogueItemController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\DeliveryLocationController;
+use App\Http\Controllers\FinishController;
+use App\Http\Controllers\FurnitureScheduleLineController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\PurchaseOrderController;
+use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -46,6 +54,15 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
     Route::delete('/profile/avatar', [ProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
+
+    Route::resource('clients', ClientController::class)->except('show');
+    Route::resource('suppliers', SupplierController::class)->except('show');
+    Route::resource('finishes', FinishController::class)->except('show');
+    Route::resource('delivery-locations', DeliveryLocationController::class)->except('show');
+    Route::resource('catalogue-items', CatalogueItemController::class)->except('show');
+    Route::resource('projects', ProjectController::class)->except('show');
+    Route::resource('projects.schedule-lines', FurnitureScheduleLineController::class)->except('show');
+    Route::resource('projects.purchase-orders', PurchaseOrderController::class)->except('show');
 });
 
 require __DIR__.'/auth.php';
