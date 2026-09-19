@@ -1,17 +1,17 @@
 <?php
 
-use App\Models\Property;
+use App\Models\Project;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 test('an admin can add a team member with no email', function () {
     $admin = User::factory()->create();
-    $property = Property::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
-    Role::create(['user_id' => $admin->id, 'property_id' => $property->id, 'type' => Role::ADMIN]);
+    $project = Project::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
+    Role::create(['user_id' => $admin->id, 'project_id' => $project->id, 'type' => Role::ADMIN]);
 
     $this->actingAs($admin)
-        ->withSession(['current_property_id' => $property->id])
+        ->withSession(['current_project_id' => $project->id])
         ->post(route('invitations.store-member'), [
             'name' => 'Casey Contractor',
             'role' => 'worker',
@@ -23,17 +23,17 @@ test('an admin can add a team member with no email', function () {
     expect($member->claimed_at)->toBeNull();
     expect($member->isClaimed())->toBeFalse();
 
-    $role = Role::where('user_id', $member->id)->where('property_id', $property->id)->firstOrFail();
+    $role = Role::where('user_id', $member->id)->where('project_id', $project->id)->firstOrFail();
     expect($role->type)->toBe(Role::WORKER);
 });
 
 test('a manager can only add a worker, not a manager', function () {
     $manager = User::factory()->create();
-    $property = Property::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
-    Role::create(['user_id' => $manager->id, 'property_id' => $property->id, 'type' => Role::MANAGER]);
+    $project = Project::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
+    Role::create(['user_id' => $manager->id, 'project_id' => $project->id, 'type' => Role::MANAGER]);
 
     $this->actingAs($manager)
-        ->withSession(['current_property_id' => $property->id])
+        ->withSession(['current_project_id' => $project->id])
         ->post(route('invitations.store-member'), [
             'name' => 'Casey Contractor',
             'role' => 'manager',
@@ -43,7 +43,7 @@ test('a manager can only add a worker, not a manager', function () {
     expect(User::where('name', 'Casey Contractor')->exists())->toBeFalse();
 
     $this->actingAs($manager)
-        ->withSession(['current_property_id' => $property->id])
+        ->withSession(['current_project_id' => $project->id])
         ->post(route('invitations.store-member'), [
             'name' => 'Casey Contractor',
             'role' => 'worker',
@@ -55,11 +55,11 @@ test('a manager can only add a worker, not a manager', function () {
 
 test('a worker is forbidden from adding a team member', function () {
     $worker = User::factory()->create();
-    $property = Property::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
-    Role::create(['user_id' => $worker->id, 'property_id' => $property->id, 'type' => Role::WORKER]);
+    $project = Project::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
+    Role::create(['user_id' => $worker->id, 'project_id' => $project->id, 'type' => Role::WORKER]);
 
     $this->actingAs($worker)
-        ->withSession(['current_property_id' => $property->id])
+        ->withSession(['current_project_id' => $project->id])
         ->post(route('invitations.store-member'), [
             'name' => 'Casey Contractor',
             'role' => 'worker',
@@ -70,11 +70,11 @@ test('a worker is forbidden from adding a team member', function () {
 test('adding a member with an email already in use is rejected', function () {
     $admin = User::factory()->create();
     $existing = User::factory()->create(['email' => 'taken@example.com']);
-    $property = Property::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
-    Role::create(['user_id' => $admin->id, 'property_id' => $property->id, 'type' => Role::ADMIN]);
+    $project = Project::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
+    Role::create(['user_id' => $admin->id, 'project_id' => $project->id, 'type' => Role::ADMIN]);
 
     $this->actingAs($admin)
-        ->withSession(['current_property_id' => $property->id])
+        ->withSession(['current_project_id' => $project->id])
         ->post(route('invitations.store-member'), [
             'name' => 'Casey Contractor',
             'email' => 'taken@example.com',
@@ -87,11 +87,11 @@ test('adding a member with an email already in use is rejected', function () {
 
 test('an unclaimed member cannot log in with any password', function () {
     $admin = User::factory()->create();
-    $property = Property::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
-    Role::create(['user_id' => $admin->id, 'property_id' => $property->id, 'type' => Role::ADMIN]);
+    $project = Project::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
+    Role::create(['user_id' => $admin->id, 'project_id' => $project->id, 'type' => Role::ADMIN]);
 
     $this->actingAs($admin)
-        ->withSession(['current_property_id' => $property->id])
+        ->withSession(['current_project_id' => $project->id])
         ->post(route('invitations.store-member'), [
             'name' => 'Casey Contractor',
             'email' => 'casey@example.com',
@@ -113,15 +113,15 @@ test('an unclaimed member cannot log in with any password', function () {
     $this->assertGuest();
 });
 
-test('adding a team member only creates a role on the current property', function () {
+test('adding a team member only creates a role on the current project', function () {
     $admin = User::factory()->create();
-    $propertyA = Property::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
-    $propertyB = Property::create(['name' => 'Other Farm', 'address' => '2 Test Rd']);
-    Role::create(['user_id' => $admin->id, 'property_id' => $propertyA->id, 'type' => Role::ADMIN]);
-    Role::create(['user_id' => $admin->id, 'property_id' => $propertyB->id, 'type' => Role::ADMIN]);
+    $projectA = Project::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
+    $projectB = Project::create(['name' => 'Other Farm', 'address' => '2 Test Rd']);
+    Role::create(['user_id' => $admin->id, 'project_id' => $projectA->id, 'type' => Role::ADMIN]);
+    Role::create(['user_id' => $admin->id, 'project_id' => $projectB->id, 'type' => Role::ADMIN]);
 
     $this->actingAs($admin)
-        ->withSession(['current_property_id' => $propertyA->id])
+        ->withSession(['current_project_id' => $projectA->id])
         ->post(route('invitations.store-member'), [
             'name' => 'Casey Contractor',
             'role' => 'worker',
@@ -129,5 +129,5 @@ test('adding a team member only creates a role on the current property', functio
         ->assertSessionHasNoErrors();
 
     $member = User::where('name', 'Casey Contractor')->firstOrFail();
-    expect(Role::where('user_id', $member->id)->pluck('property_id')->all())->toBe([$propertyA->id]);
+    expect(Role::where('user_id', $member->id)->pluck('project_id')->all())->toBe([$projectA->id]);
 });

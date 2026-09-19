@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Invitation;
-use App\Models\Property;
+use App\Models\Project;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
@@ -10,11 +10,11 @@ test('re-inviting the same email supersedes the previous invitation token', func
     Mail::fake();
 
     $admin = User::factory()->create();
-    $property = Property::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
-    Role::create(['user_id' => $admin->id, 'property_id' => $property->id, 'type' => Role::ADMIN]);
+    $project = Project::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
+    Role::create(['user_id' => $admin->id, 'project_id' => $project->id, 'type' => Role::ADMIN]);
 
     $oldInvitation = Invitation::create([
-        'property_id' => $property->id,
+        'project_id' => $project->id,
         'invited_by' => $admin->id,
         'email' => 'wez1139@gmail.com',
         'role' => Role::WORKER,
@@ -22,14 +22,14 @@ test('re-inviting the same email supersedes the previous invitation token', func
     $oldToken = $oldInvitation->token;
 
     $this->actingAs($admin)
-        ->withSession(['current_property_id' => $property->id])
+        ->withSession(['current_project_id' => $project->id])
         ->post(route('invitations.store'), [
             'email' => 'wez1139@gmail.com',
             'role' => 'worker',
         ])
         ->assertSessionHasNoErrors();
 
-    expect(Invitation::where('property_id', $property->id)
+    expect(Invitation::where('project_id', $project->id)
         ->where('email', 'wez1139@gmail.com')
         ->whereNull('accepted_at')
         ->count())->toBe(1);
@@ -41,19 +41,19 @@ test('re-inviting the same email supersedes the previous invitation token', func
 test('removing a team member deletes their pending invitation', function () {
     $admin = User::factory()->create();
     $worker = User::factory()->create(['email' => 'wez1139@gmail.com']);
-    $property = Property::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
-    Role::create(['user_id' => $admin->id, 'property_id' => $property->id, 'type' => Role::ADMIN]);
-    $workerRole = Role::create(['user_id' => $worker->id, 'property_id' => $property->id, 'type' => Role::WORKER]);
+    $project = Project::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
+    Role::create(['user_id' => $admin->id, 'project_id' => $project->id, 'type' => Role::ADMIN]);
+    $workerRole = Role::create(['user_id' => $worker->id, 'project_id' => $project->id, 'type' => Role::WORKER]);
 
     $invitation = Invitation::create([
-        'property_id' => $property->id,
+        'project_id' => $project->id,
         'invited_by' => $admin->id,
         'email' => 'wez1139@gmail.com',
         'role' => Role::WORKER,
     ]);
 
     $this->actingAs($admin)
-        ->withSession(['current_property_id' => $property->id])
+        ->withSession(['current_project_id' => $project->id])
         ->delete(route('invitations.destroy-role', $workerRole))
         ->assertSessionHasNoErrors();
 
@@ -64,23 +64,23 @@ test('an unclaimed member with a pending invitation still shows in the team list
     Mail::fake();
 
     $admin = User::factory()->create();
-    $property = Property::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
-    Role::create(['user_id' => $admin->id, 'property_id' => $property->id, 'type' => Role::ADMIN]);
+    $project = Project::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
+    Role::create(['user_id' => $admin->id, 'project_id' => $project->id, 'type' => Role::ADMIN]);
 
     $this->actingAs($admin)
-        ->withSession(['current_property_id' => $property->id])
+        ->withSession(['current_project_id' => $project->id])
         ->post(route('invitations.store-member'), ['name' => 'Casey Contractor', 'role' => 'worker'])
         ->assertSessionHasNoErrors();
     $member = User::where('name', 'Casey Contractor')->firstOrFail();
     $role = Role::where('user_id', $member->id)->firstOrFail();
 
     $this->actingAs($admin)
-        ->withSession(['current_property_id' => $property->id])
+        ->withSession(['current_project_id' => $project->id])
         ->post(route('invitations.invite-member', $role->id), ['email' => 'casey@example.com'])
         ->assertSessionHasNoErrors();
 
     $this->actingAs($admin)
-        ->withSession(['current_property_id' => $property->id])
+        ->withSession(['current_project_id' => $project->id])
         ->get(route('invitations.index'))
         ->assertInertia(fn ($page) => $page
             ->component('Invitations/Index')
@@ -90,18 +90,18 @@ test('an unclaimed member with a pending invitation still shows in the team list
 
 test('removing an unclaimed member deletes their invitation but keeps their user record', function () {
     $admin = User::factory()->create();
-    $property = Property::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
-    Role::create(['user_id' => $admin->id, 'property_id' => $property->id, 'type' => Role::ADMIN]);
+    $project = Project::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
+    Role::create(['user_id' => $admin->id, 'project_id' => $project->id, 'type' => Role::ADMIN]);
 
     $this->actingAs($admin)
-        ->withSession(['current_property_id' => $property->id])
+        ->withSession(['current_project_id' => $project->id])
         ->post(route('invitations.store-member'), ['name' => 'Casey Contractor', 'role' => 'worker'])
         ->assertSessionHasNoErrors();
     $member = User::where('name', 'Casey Contractor')->firstOrFail();
     $role = Role::where('user_id', $member->id)->firstOrFail();
 
     $invitation = Invitation::create([
-        'property_id' => $property->id,
+        'project_id' => $project->id,
         'invited_by' => $admin->id,
         'user_id' => $member->id,
         'email' => 'casey@example.com',
@@ -109,7 +109,7 @@ test('removing an unclaimed member deletes their invitation but keeps their user
     ]);
 
     $this->actingAs($admin)
-        ->withSession(['current_property_id' => $property->id])
+        ->withSession(['current_project_id' => $project->id])
         ->delete(route('invitations.destroy-role', $role))
         ->assertSessionHasNoErrors();
 

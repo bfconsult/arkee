@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
-    protected $fillable = ['user_id', 'property_id', 'type'];
+    protected $fillable = ['user_id', 'project_id', 'type'];
 
     const TYPES = ['admin', 'manager', 'worker', 'approver'];
 
@@ -20,8 +20,8 @@ class Role extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function property()
+    public function project()
     {
-        return $this->belongsTo(Property::class);
+        return $this->belongsTo(Project::class);
     }
 }

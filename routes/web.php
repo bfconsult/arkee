@@ -3,7 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\InvitationController;
 
 Route::get('/', function () {
@@ -51,24 +51,24 @@ Route::middleware('auth')->group(function () {
 });
 
 // Admin only routes
-Route::middleware(['auth', 'property.role:admin'])->group(function () {
-    Route::resource('properties', PropertyController::class)->only(['edit', 'update', 'destroy']);
+Route::middleware(['auth', 'project.role:admin'])->group(function () {
+    Route::resource('projects', ProjectController::class)->only(['edit', 'update', 'destroy']);
 });
 
-// All authenticated users with a property
+// All authenticated users with a project
 Route::middleware(['auth'])->group(function () {
-    Route::get('properties/create', [PropertyController::class, 'create'])->name('properties.create');
-    Route::post('properties', [PropertyController::class, 'store'])->name('properties.store');
-    Route::get('properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
-    Route::delete('properties/{property}/leave', [PropertyController::class, 'leave'])->name('properties.leave');
-    Route::post('select-property', function (\Illuminate\Http\Request $request) {
+    Route::get('projects/create', [ProjectController::class, 'create'])->name('projects.create');
+    Route::post('projects', [ProjectController::class, 'store'])->name('projects.store');
+    Route::get('projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+    Route::delete('projects/{project}/leave', [ProjectController::class, 'leave'])->name('projects.leave');
+    Route::post('select-project', function (\Illuminate\Http\Request $request) {
         $user = \Illuminate\Support\Facades\Auth::user();
-        $request->validate(['property_id' => ['required', \Illuminate\Validation\Rule::exists('properties', 'id')]]);
-        abort_unless($user->properties()->where('properties.id', $request->property_id)->exists(), 403);
-        session(['current_property_id' => $request->property_id]);
-        $user->update(['current_property_id' => $request->property_id]);
+        $request->validate(['project_id' => ['required', \Illuminate\Validation\Rule::exists('projects', 'id')]]);
+        abort_unless($user->projects()->where('projects.id', $request->project_id)->exists(), 403);
+        session(['current_project_id' => $request->project_id]);
+        $user->update(['current_project_id' => $request->project_id]);
         return back();
-    })->name('property.select');
+    })->name('project.select');
 });
 
 // Invitation accept flow (no auth required to view, but process requires auth)
@@ -79,7 +79,7 @@ Route::post('invitations/{token}', [InvitationController::class, 'process'])->na
 Route::post('invitations/{token}/claim', [InvitationController::class, 'claim'])->name('invitations.claim');
 
 // Admin and Manager can manage invitations
-Route::middleware(['auth', 'property.role:admin,manager'])->group(function () {
+Route::middleware(['auth', 'project.role:admin,manager'])->group(function () {
     Route::get('team', [InvitationController::class, 'index'])->name('invitations.index');
     Route::post('team/invite', [InvitationController::class, 'store'])->name('invitations.store');
     Route::post('team/members', [InvitationController::class, 'storeMember'])->name('invitations.store-member');

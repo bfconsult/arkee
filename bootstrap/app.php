@@ -24,7 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // without this it would silently decrypt to null on every request.
         $middleware->encryptCookies(except: ['timezone']);
         $middleware->alias([
-            'property.role' => \App\Http\Middleware\EnsurePropertyRole::class,
+            'project.role' => \App\Http\Middleware\EnsureProjectRole::class,
         ]);
         $middleware->throttleApi();
     })

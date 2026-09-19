@@ -1,29 +1,29 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 
-export default function Edit({ property, isNewProperty }) {
-    const title = isNewProperty ? 'Create New Property' : 'Edit Property';
+export default function Edit({ project, isNewProject }) {
+    const title = isNewProject ? 'Create New Project' : 'Edit Project';
 
     const { data, setData, patch, processing, errors } = useForm({
-        name: property.name,
-        address: property.address,
-        email: property.email ?? '',
+        name: project.name,
+        address: project.address,
+        email: project.email ?? '',
     });
 
     const submit = (e) => {
         e.preventDefault();
-        patch(route('properties.update', property.id));
+        patch(route('projects.update', project.id));
     };
 
-    const discardNewProperty = () => {
-        if (confirm("Discard this new property? It hasn't been saved with any real details yet.")) {
-            router.delete(route('properties.destroy', property.id));
+    const discardNewProject = () => {
+        if (confirm("Discard this new project? It hasn't been saved with any real details yet.")) {
+            router.delete(route('projects.destroy', project.id));
         }
     };
 
     return (
         <AuthenticatedLayout>
-            <Head title={isNewProperty ? title : `Edit ${property.name}`} />
+            <Head title={isNewProject ? title : `Edit ${project.name}`} />
 
             <div className="py-12">
                 <div className="max-w-2xl mx-auto sm:px-6 lg:px-8">
@@ -63,7 +63,7 @@ export default function Edit({ property, isNewProperty }) {
                                 )}
                             </div>
 
-                            {!isNewProperty && (
+                            {!isNewProject && (
                                 <div className="mb-6">
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Email
@@ -81,17 +81,17 @@ export default function Edit({ property, isNewProperty }) {
                             )}
 
                             <div className="flex justify-end gap-4">
-                                {isNewProperty ? (
+                                {isNewProject ? (
                                     <button
                                         type="button"
-                                        onClick={discardNewProperty}
+                                        onClick={discardNewProject}
                                         className="px-4 py-2 text-gray-700 hover:text-gray-900"
                                     >
                                         Cancel
                                     </button>
                                 ) : (
                                     <Link
-                                        href={route('properties.show', property.id)}
+                                        href={route('projects.show', project.id)}
                                         className="px-4 py-2 text-gray-700 hover:text-gray-900"
                                     >
                                         Cancel
@@ -102,7 +102,7 @@ export default function Edit({ property, isNewProperty }) {
                                     disabled={processing}
                                     className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
                                 >
-                                    {isNewProperty ? 'Create Property' : 'Update Property'}
+                                    {isNewProject ? 'Create Project' : 'Update Project'}
                                 </button>
                             </div>
                         </form>

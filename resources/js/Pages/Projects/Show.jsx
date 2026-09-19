@@ -2,34 +2,34 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import BackLink from '@/Components/BackLink';
 import { Head, Link, router } from '@inertiajs/react';
 
-export default function Show({ property, currentRole, canLeave }) {
+export default function Show({ project, currentRole, canLeave }) {
     const isAdminOrManager = currentRole === 'admin' || currentRole === 'manager';
 
     const destroy = () => {
-        if (confirm('Are you sure you want to delete this property?')) {
-            router.delete(route('properties.destroy', property.id));
+        if (confirm('Are you sure you want to delete this project?')) {
+            router.delete(route('projects.destroy', project.id));
         }
     };
 
     const leave = () => {
-        if (confirm(`Leave the team for ${property.name}? You'll lose access to this property.`)) {
-            router.delete(route('properties.leave', property.id));
+        if (confirm(`Leave the team for ${project.name}? You'll lose access to this project.`)) {
+            router.delete(route('projects.leave', project.id));
         }
     };
 
     return (
         <AuthenticatedLayout>
-            <Head title={property.name} />
+            <Head title={project.name} />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-2xl font-semibold text-gray-900">
-                            {property.name}
+                            {project.name}
                         </h1>
                         <div className="flex items-center gap-4">
                             <Link
-                                href={route('properties.edit', property.id)}
+                                href={route('projects.edit', project.id)}
                                 className="text-sm px-3 py-1 border border-green-600 text-green-600 rounded-lg"
                             >
                                 Edit
@@ -45,11 +45,11 @@ export default function Show({ property, currentRole, canLeave }) {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <p className="text-sm text-gray-500">Name</p>
-                                <p className="text-gray-900">{property.name}</p>
+                                <p className="text-gray-900">{project.name}</p>
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500">Address</p>
-                                <p className="text-gray-900">{property.address}</p>
+                                <p className="text-gray-900">{project.address}</p>
                             </div>
                         </div>
                     </div>
@@ -70,8 +70,8 @@ export default function Show({ property, currentRole, canLeave }) {
                         <h2 className="text-lg font-medium text-gray-900 mb-2">Leave Team</h2>
                         <p className="text-sm text-gray-500 mb-4">
                             {canLeave
-                                ? "You'll lose access to this property, and will need a new invitation to rejoin."
-                                : 'You are the last admin on this property, so you can\'t leave. Promote another member to admin first, or delete the property instead.'}
+                                ? "You'll lose access to this project, and will need a new invitation to rejoin."
+                                : 'You are the last admin on this project, so you can\'t leave. Promote another member to admin first, or delete the project instead.'}
                         </p>
                         <button
                             onClick={leave}

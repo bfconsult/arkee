@@ -1,15 +1,15 @@
 <?php
 
 use App\Models\Invitation;
-use App\Models\Property;
+use App\Models\Project;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
-function addUnclaimedMember(User $admin, Property $property, string $name = 'Casey Contractor'): User
+function addUnclaimedMember(User $admin, Project $project, string $name = 'Casey Contractor'): User
 {
     test()->actingAs($admin)
-        ->withSession(['current_property_id' => $property->id])
+        ->withSession(['current_project_id' => $project->id])
         ->post(route('invitations.store-member'), ['name' => $name, 'role' => 'worker'])
         ->assertSessionHasNoErrors();
 
@@ -20,14 +20,14 @@ test('inviting an already-added member persists their email and links the invita
     Mail::fake();
 
     $admin = User::factory()->create();
-    $property = Property::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
-    Role::create(['user_id' => $admin->id, 'property_id' => $property->id, 'type' => Role::ADMIN]);
+    $project = Project::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
+    Role::create(['user_id' => $admin->id, 'project_id' => $project->id, 'type' => Role::ADMIN]);
 
-    $member = addUnclaimedMember($admin, $property);
+    $member = addUnclaimedMember($admin, $project);
     $role = Role::where('user_id', $member->id)->firstOrFail();
 
     $this->actingAs($admin)
-        ->withSession(['current_property_id' => $property->id])
+        ->withSession(['current_project_id' => $project->id])
         ->post(route('invitations.invite-member', $role->id), [
             'email' => 'casey@example.com',
         ])
@@ -35,19 +35,19 @@ test('inviting an already-added member persists their email and links the invita
 
     expect($member->fresh()->email)->toBe('casey@example.com');
 
-    $invitation = Invitation::where('property_id', $property->id)->whereNull('accepted_at')->firstOrFail();
+    $invitation = Invitation::where('project_id', $project->id)->whereNull('accepted_at')->firstOrFail();
     expect($invitation->user_id)->toBe($member->id);
     expect($invitation->email)->toBe('casey@example.com');
 });
 
 test('the accept page renders the Claim form for an unclaimed member, not the normal Accept form', function () {
     $admin = User::factory()->create();
-    $property = Property::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
-    Role::create(['user_id' => $admin->id, 'property_id' => $property->id, 'type' => Role::ADMIN]);
-    $member = addUnclaimedMember($admin, $property);
+    $project = Project::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
+    Role::create(['user_id' => $admin->id, 'project_id' => $project->id, 'type' => Role::ADMIN]);
+    $member = addUnclaimedMember($admin, $project);
 
     $invitation = Invitation::create([
-        'property_id' => $property->id,
+        'project_id' => $project->id,
         'invited_by' => $admin->id,
         'user_id' => $member->id,
         'email' => 'casey@example.com',
@@ -59,7 +59,7 @@ test('the accept page renders the Claim form for an unclaimed member, not the no
 
     // A normal stranger-by-email invitation still gets the plain Accept page.
     $strangerInvitation = Invitation::create([
-        'property_id' => $property->id,
+        'project_id' => $project->id,
         'invited_by' => $admin->id,
         'email' => 'stranger@example.com',
         'role' => Role::WORKER,
@@ -71,13 +71,13 @@ test('the accept page renders the Claim form for an unclaimed member, not the no
 
 test('claiming sets a password and claimed_at, logs the user in, and reuses the existing role', function () {
     $admin = User::factory()->create();
-    $property = Property::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
-    Role::create(['user_id' => $admin->id, 'property_id' => $property->id, 'type' => Role::ADMIN]);
-    $member = addUnclaimedMember($admin, $property);
+    $project = Project::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
+    Role::create(['user_id' => $admin->id, 'project_id' => $project->id, 'type' => Role::ADMIN]);
+    $member = addUnclaimedMember($admin, $project);
     $originalRole = Role::where('user_id', $member->id)->firstOrFail();
 
     $invitation = Invitation::create([
-        'property_id' => $property->id,
+        'project_id' => $project->id,
         'invited_by' => $admin->id,
         'user_id' => $member->id,
         'email' => 'casey@example.com',
@@ -96,7 +96,7 @@ test('claiming sets a password and claimed_at, logs the user in, and reuses the 
     expect($member->isClaimed())->toBeTrue();
     $this->assertAuthenticatedAs($member);
 
-    expect(Role::where('user_id', $member->id)->where('property_id', $property->id)->count())->toBe(1);
+    expect(Role::where('user_id', $member->id)->where('project_id', $project->id)->count())->toBe(1);
     expect(Role::find($originalRole->id))->not->toBeNull();
 
     expect(Invitation::find($invitation->id)->fresh()->accepted_at)->not->toBeNull();
@@ -104,13 +104,13 @@ test('claiming sets a password and claimed_at, logs the user in, and reuses the 
 
 test('a logged-out invitee whose account already exists is sent to login, not register', function () {
     $admin = User::factory()->create();
-    $property = Property::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
-    Role::create(['user_id' => $admin->id, 'property_id' => $property->id, 'type' => Role::ADMIN]);
+    $project = Project::create(['name' => 'Valle Pacis', 'address' => '1 Test Rd']);
+    Role::create(['user_id' => $admin->id, 'project_id' => $project->id, 'type' => Role::ADMIN]);
 
     $existing = User::factory()->create(['email' => 'already-here@example.com']);
 
     $invitation = Invitation::create([
-        'property_id' => $property->id,
+        'project_id' => $project->id,
         'invited_by' => $admin->id,
         'email' => 'already-here@example.com',
         'role' => Role::WORKER,

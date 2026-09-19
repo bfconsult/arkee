@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\PropertyInvitation;
+use App\Mail\ProjectInvitation;
 use App\Models\Invitation;
-use App\Models\Property;
+use App\Models\Project;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -20,10 +20,10 @@ class InvitationController extends Controller
 {
     public function index()
     {
-        $propertyId = session('current_property_id');
-        $property = Property::find($propertyId);
+        $projectId = session('current_project_id');
+        $project = Project::find($projectId);
 
-        $pendingInvitations = $property->invitations()->whereNull('accepted_at')->get();
+        $pendingInvitations = $project->invitations()->whereNull('accepted_at')->get();
 
         // Only an email-only invitation (no user_id) hides a matching team
         // member from the main list - that's the legacy "invited a stranger
@@ -36,23 +36,23 @@ class InvitationController extends Controller
             ->filter()
             ->map(fn ($email) => strtolower($email));
 
-        $roles = $property->roles()->with('user')->get()
+        $roles = $project->roles()->with('user')->get()
             ->reject(fn ($role) => $role->user->email
                 && $emailOnlyPendingEmails->contains(strtolower($role->user->email)))
             ->values();
 
         return Inertia::render('Invitations/Index', [
-            'property' => $property,
+            'project' => $project,
             'roles' => $roles,
             'pendingInvitations' => $pendingInvitations,
-            'currentUserRole' => Auth::user()->roleOn($property),
+            'currentUserRole' => Auth::user()->roleOn($project),
         ]);
     }
 
     public function store(Request $request)
     {
-        $propertyId = session('current_property_id');
-        $property = Property::find($propertyId);
+        $projectId = session('current_project_id');
+        $project = Project::find($projectId);
 
         $validated = $request->validate([
             'email' => 'required|email',
@@ -61,27 +61,27 @@ class InvitationController extends Controller
         ]);
 
         // Managers can only invite workers
-        $currentUserRole = Auth::user()->roleOn($property);
+        $currentUserRole = Auth::user()->roleOn($project);
         if ($currentUserRole === Role::MANAGER && $validated['role'] !== Role::WORKER) {
             abort(403, 'Managers can only invite workers.');
         }
 
         // Superseded by this new invite - an old token for the same person
         // must not stay valid alongside the fresh one we're about to send.
-        Invitation::where('property_id', $property->id)
+        Invitation::where('project_id', $project->id)
             ->where('email', strtolower($validated['email']))
             ->whereNull('accepted_at')
             ->delete();
 
         $invitation = Invitation::create([
-            'property_id' => $property->id,
+            'project_id' => $project->id,
             'invited_by' => Auth::id(),
             'email' => strtolower($validated['email']),
             'role' => $validated['role'],
             'message' => $validated['message'] ?? null,
         ]);
 
-        Mail::to($invitation->email)->send(new PropertyInvitation($invitation));
+        Mail::to($invitation->email)->send(new ProjectInvitation($invitation));
 
         return back()->with('success', 'Invitation sent.');
     }
@@ -95,8 +95,8 @@ class InvitationController extends Controller
      */
     public function storeMember(Request $request)
     {
-        $propertyId = session('current_property_id');
-        $property = Property::find($propertyId);
+        $projectId = session('current_project_id');
+        $project = Project::find($projectId);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -107,12 +107,12 @@ class InvitationController extends Controller
         ]);
 
         // Same gate as inviting by email: managers can only add workers.
-        $currentUserRole = Auth::user()->roleOn($property);
+        $currentUserRole = Auth::user()->roleOn($project);
         if ($currentUserRole === Role::MANAGER && $validated['role'] !== Role::WORKER) {
             abort(403, 'Managers can only add workers.');
         }
 
-        DB::transaction(function () use ($validated, $property) {
+        DB::transaction(function () use ($validated, $project) {
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => isset($validated['email']) ? strtolower($validated['email']) : null,
@@ -123,7 +123,7 @@ class InvitationController extends Controller
                 'password' => Str::random(48),
             ]);
 
-            Role::create(['user_id' => $user->id, 'property_id' => $property->id, 'type' => $validated['role']]);
+            Role::create(['user_id' => $user->id, 'project_id' => $project->id, 'type' => $validated['role']]);
         });
 
         return back()->with('success', 'Team member added.');
@@ -137,10 +137,10 @@ class InvitationController extends Controller
      */
     public function inviteMember(Request $request, Role $role)
     {
-        $property = $role->property;
-        abort_unless($property->id === (int) session('current_property_id'), 404);
+        $project = $role->project;
+        abort_unless($project->id === (int) session('current_project_id'), 404);
 
-        $currentUserRole = Auth::user()->roleOn($property);
+        $currentUserRole = Auth::user()->roleOn($project);
         if ($currentUserRole === Role::MANAGER && $role->type !== Role::WORKER) {
             abort(403, 'Managers can only invite workers.');
         }
@@ -158,13 +158,13 @@ class InvitationController extends Controller
 
         // Superseded by this new invite - an old token for the same person
         // must not stay valid alongside the fresh one we're about to send.
-        Invitation::where('property_id', $property->id)
+        Invitation::where('project_id', $project->id)
             ->where(fn ($q) => $q->where('email', $email)->orWhere('user_id', $role->user_id))
             ->whereNull('accepted_at')
             ->delete();
 
         $invitation = Invitation::create([
-            'property_id' => $property->id,
+            'project_id' => $project->id,
             'invited_by' => Auth::id(),
             'user_id' => $role->user_id,
             'email' => $email,
@@ -172,14 +172,14 @@ class InvitationController extends Controller
             'message' => $validated['message'] ?? null,
         ]);
 
-        Mail::to($email)->send(new PropertyInvitation($invitation));
+        Mail::to($email)->send(new ProjectInvitation($invitation));
 
         return back()->with('success', 'Invitation sent.');
     }
 
     public function accept(string $token)
     {
-        $invitation = Invitation::where('token', $token)->whereNull('accepted_at')->with(['property', 'user'])->firstOrFail();
+        $invitation = Invitation::where('token', $token)->whereNull('accepted_at')->with(['project', 'user'])->firstOrFail();
 
         // A member who was added directly (storeMember) already has a name
         // and a role - all that's missing is a password, so they get a
@@ -229,7 +229,7 @@ class InvitationController extends Controller
         session(['pending_invitation_token' => $token]);
         Invitation::completePendingFor($user);
 
-        return redirect()->route('properties.show', $invitation->property_id)->with('success', 'You have joined the property!');
+        return redirect()->route('projects.show', $invitation->project_id)->with('success', 'You have joined the project!');
     }
 
     /**
@@ -269,13 +269,13 @@ class InvitationController extends Controller
         session(['pending_invitation_token' => $invitation->token]);
         Invitation::completePendingFor($user);
 
-        return redirect()->route('properties.show', $invitation->property_id)->with('success', 'Welcome aboard!');
+        return redirect()->route('projects.show', $invitation->project_id)->with('success', 'Welcome aboard!');
     }
 
     public function updateRole(Request $request, Role $role)
     {
-        $property = $role->property;
-        $currentUserRole = Auth::user()->roleOn($property);
+        $project = $role->project;
+        $currentUserRole = Auth::user()->roleOn($project);
 
         // Only admins can change a team member's role.
         if ($currentUserRole !== Role::ADMIN) {
@@ -288,7 +288,7 @@ class InvitationController extends Controller
 
         // Can't demote the last admin.
         if ($role->type === Role::ADMIN && $validated['type'] !== Role::ADMIN) {
-            $adminCount = $property->roles()->where('type', Role::ADMIN)->count();
+            $adminCount = $project->roles()->where('type', Role::ADMIN)->count();
             if ($adminCount <= 1) {
                 abort(403, 'Cannot change the role of the last admin.');
             }
@@ -301,8 +301,8 @@ class InvitationController extends Controller
 
     public function destroyRole(Role $role)
     {
-        $property = $role->property;
-        $currentUserRole = Auth::user()->roleOn($property);
+        $project = $role->project;
+        $currentUserRole = Auth::user()->roleOn($project);
 
         // Managers can only remove workers
         if ($currentUserRole === Role::MANAGER && $role->type !== Role::WORKER) {
@@ -311,7 +311,7 @@ class InvitationController extends Controller
 
         // Can't remove the last admin
         if ($role->type === Role::ADMIN) {
-            $adminCount = $property->roles()->where('type', Role::ADMIN)->count();
+            $adminCount = $project->roles()->where('type', Role::ADMIN)->count();
             if ($adminCount <= 1) {
                 abort(403, 'Cannot remove the last admin.');
             }
@@ -321,7 +321,7 @@ class InvitationController extends Controller
         // resurface later pointing at a role that no longer exists. Matches
         // by user_id (always available) as well as email, since a member
         // added directly may have no email at all.
-        Invitation::where('property_id', $property->id)
+        Invitation::where('project_id', $project->id)
             ->where(function ($q) use ($role) {
                 $q->where('user_id', $role->user_id);
                 if ($role->user->email) {
@@ -332,8 +332,8 @@ class InvitationController extends Controller
             ->delete();
 
         // The User row is deliberately kept: removing someone from a
-        // property should never silently delete anything logged against
-        // them. They just stop appearing in this property's active team.
+        // project should never silently delete anything logged against
+        // them. They just stop appearing in this project's active team.
         $role->delete();
 
         return back()->with('success', 'User removed.');

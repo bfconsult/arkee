@@ -11,7 +11,7 @@ export default function Accept({ invitation }) {
 
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-            <Head title="Join Property" />
+            <Head title="Join Project" />
 
             <div className="max-w-sm w-full bg-white rounded-lg shadow p-6 text-center">
                 <ApplicationLogo className="h-10 w-10 mx-auto mb-2" />
@@ -19,7 +19,7 @@ export default function Accept({ invitation }) {
                     You've been invited!
                 </h1>
                 <p className="text-sm text-gray-600 mb-6">
-                    Join <strong>{invitation.property.name}</strong> as a{' '}
+                    Join <strong>{invitation.project.name}</strong> as a{' '}
                     <strong className="capitalize">{invitation.role}</strong>
                 </p>
 

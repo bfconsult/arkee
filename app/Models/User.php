@@ -25,7 +25,7 @@ class User extends Authenticatable
         'email',
         'password',
         'deleted',
-        'current_property_id',
+        'current_project_id',
         'timezone',
         'claimed_at',
         'avatar',
@@ -82,21 +82,21 @@ class User extends Authenticatable
         return $this->hasMany(Role::class);
     }
 
-    public function properties()
+    public function projects()
     {
-        return $this->belongsToMany(Property::class, 'roles')->withPivot('type')->withTimestamps();
+        return $this->belongsToMany(Project::class, 'roles')->withPivot('type')->withTimestamps();
     }
 
     /**
-     * Properties this user has ever created - approximated as "properties
-     * they currently hold the admin role on", since PropertyController::store()
+     * Projects this user has ever created - approximated as "projects
+     * they currently hold the admin role on", since ProjectController::store()
      * makes the creator an admin immediately and there's no dedicated
-     * creator column on properties. Not exact if admin access is later
+     * creator column on projects. Not exact if admin access is later
      * granted to/revoked from someone else.
      */
-    public function adminProperties()
+    public function adminProjects()
     {
-        return $this->belongsToMany(Property::class, 'roles')->wherePivot('type', Role::ADMIN);
+        return $this->belongsToMany(Project::class, 'roles')->wherePivot('type', Role::ADMIN);
     }
 
     /**
@@ -130,25 +130,25 @@ class User extends Authenticatable
         return $query->whereNotNull('email')->whereNotNull('claimed_at');
     }
 
-    public function roleOn(Property $property): ?string
+    public function roleOn(Project $project): ?string
     {
         return $this->roles()
-            ->where('property_id', $property->id)
+            ->where('project_id', $project->id)
             ->value('type');
     }
 
-    public function isAdminOn(Property $property): bool
+    public function isAdminOn(Project $project): bool
     {
-        return $this->roleOn($property) === Role::ADMIN;
+        return $this->roleOn($project) === Role::ADMIN;
     }
 
-    public function isManagerOn(Property $property): bool
+    public function isManagerOn(Project $project): bool
     {
-        return in_array($this->roleOn($property), [Role::ADMIN, Role::MANAGER]);
+        return in_array($this->roleOn($project), [Role::ADMIN, Role::MANAGER]);
     }
 
-    public function isWorkerOn(Property $property): bool
+    public function isWorkerOn(Project $project): bool
     {
-        return in_array($this->roleOn($property), [Role::ADMIN, Role::MANAGER, Role::WORKER]);
+        return in_array($this->roleOn($project), [Role::ADMIN, Role::MANAGER, Role::WORKER]);
     }
 }

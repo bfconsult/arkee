@@ -18,7 +18,7 @@ const ROLE_COLORS = {
 
 const ALL_ROLE_TYPES = ['admin', 'manager', 'worker', 'approver'];
 
-export default function Index({ property, roles, pendingInvitations, currentUserRole }) {
+export default function Index({ project, roles, pendingInvitations, currentUserRole }) {
     const { auth } = usePage().props;
     // null | 'add' | 'invite' - only one of the two "bring someone onto the
     // team" forms is ever open at a time, in the same slot below.
@@ -28,7 +28,7 @@ export default function Index({ property, roles, pendingInvitations, currentUser
     const [invitingRoleId, setInvitingRoleId] = useState(null);
 
     const defaultMessage = (role) =>
-        `${auth.user.name} has invited you to join ${property.name} as a ${ROLE_LABELS[role]}.`;
+        `${auth.user.name} has invited you to join ${project.name} as a ${ROLE_LABELS[role]}.`;
 
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
@@ -108,7 +108,7 @@ export default function Index({ property, roles, pendingInvitations, currentUser
     };
 
     const removeRole = (roleId) => {
-        if (confirm('Remove this person from the property?')) {
+        if (confirm('Remove this person from the project?')) {
             router.delete(route('invitations.destroy-role', roleId));
         }
     };

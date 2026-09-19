@@ -2,33 +2,33 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Property;
+use App\Models\Project;
 use App\Models\Role;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class EnsurePropertyRole
+class EnsureProjectRole
 {
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        $propertyId = session('current_property_id');
+        $projectId = session('current_project_id');
 
-        if (!$propertyId) {
+        if (!$projectId) {
             return redirect()->route('profile.edit')
-                ->with('error', 'Please select a property first.');
+                ->with('error', 'Please select a project first.');
         }
 
-        $property = Property::find($propertyId);
+        $project = Project::find($projectId);
 
-        if (!$property) {
-            session()->forget('current_property_id');
+        if (!$project) {
+            session()->forget('current_project_id');
 
             return redirect()->route('profile.edit')
-                ->with('error', 'Property not found.');
+                ->with('error', 'Project not found.');
         }
 
-        $userRole = $request->user()->roleOn($property);
+        $userRole = $request->user()->roleOn($project);
 
         if (!in_array($userRole, $roles)) {
             abort(403, 'You do not have permission to perform this action.');

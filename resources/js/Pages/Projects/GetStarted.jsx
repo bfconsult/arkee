@@ -5,9 +5,9 @@ import { useState } from 'react';
 export default function GetStarted() {
     const [creating, setCreating] = useState(false);
 
-    const createProperty = () => {
+    const createProject = () => {
         setCreating(true);
-        router.post(route('properties.store'), {}, {
+        router.post(route('projects.store'), {}, {
             onError: () => setCreating(false),
         });
     };
@@ -25,16 +25,16 @@ export default function GetStarted() {
                     Welcome
                 </h1>
                 <p className="text-sm text-gray-500 mb-6">
-                    Everything here — including your team — belongs to a property.
+                    Everything here — including your team — belongs to a project.
                     Create yours to get started.
                 </p>
 
                 <button
-                    onClick={createProperty}
+                    onClick={createProject}
                     disabled={creating}
                     className="w-full py-3 bg-green-600 text-white rounded-lg font-medium disabled:opacity-50"
                 >
-                    {creating ? 'Creating…' : 'Create Property'}
+                    {creating ? 'Creating…' : 'Create Project'}
                 </button>
 
                 <button

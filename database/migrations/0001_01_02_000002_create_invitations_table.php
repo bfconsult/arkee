@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('invitations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('property_id')->constrained()->onDelete('cascade');
+            $table->foreignId('project_id')->constrained()->onDelete('cascade');
             $table->foreignId('invited_by')->constrained('users')->onDelete('cascade');
             // Set when this invitation is for a team member who was already
             // added directly (the "add first, invite later" flow) - null for

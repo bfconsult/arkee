@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class Invitation extends Model
 {
-    protected $fillable = ['property_id', 'invited_by', 'user_id', 'email', 'role', 'message', 'token', 'accepted_at'];
+    protected $fillable = ['project_id', 'invited_by', 'user_id', 'email', 'role', 'message', 'token', 'accepted_at'];
 
     protected $casts = [
         'accepted_at' => 'datetime',
@@ -20,9 +20,9 @@ class Invitation extends Model
         });
     }
 
-    public function property()
+    public function project()
     {
-        return $this->belongsTo(Property::class);
+        return $this->belongsTo(Project::class);
     }
 
     public function invitedBy()
@@ -76,13 +76,13 @@ class Invitation extends Model
         }
 
         Role::firstOrCreate(
-            ['user_id' => $user->id, 'property_id' => $invitation->property_id],
+            ['user_id' => $user->id, 'project_id' => $invitation->project_id],
             ['type' => $invitation->role]
         );
         $invitation->update(['accepted_at' => now()]);
         session()->forget('pending_invitation_token');
-        session(['current_property_id' => $invitation->property_id]);
-        $user->update(['current_property_id' => $invitation->property_id]);
+        session(['current_project_id' => $invitation->project_id]);
+        $user->update(['current_project_id' => $invitation->project_id]);
 
         return $invitation;
     }

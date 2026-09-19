@@ -28,7 +28,7 @@ export default function Claim({ invitation }) {
                         Set up your account
                     </h1>
                     <p className="text-sm text-gray-600 mb-6">
-                        You've already got time logged on <strong>{invitation.property.name}</strong> as a{' '}
+                        You've already got time logged on <strong>{invitation.project.name}</strong> as a{' '}
                         <strong className="capitalize">{invitation.role}</strong>. Set a password to
                         start signing in yourself.
                     </p>

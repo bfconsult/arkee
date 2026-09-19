@@ -11,7 +11,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class PropertyInvitation extends Mailable
+class ProjectInvitation extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -29,7 +29,7 @@ class PropertyInvitation extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "You're invited to join {$this->invitation->property->name} on " . config('app.name'),
+            subject: "You're invited to join {$this->invitation->project->name} on " . config('app.name'),
         );
     }
 
@@ -39,7 +39,7 @@ class PropertyInvitation extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.property-invitation',
+            markdown: 'emails.project-invitation',
             with: ['bodyMessage' => $this->invitation->message ?: $this->defaultMessage()],
         );
     }
@@ -52,7 +52,7 @@ class PropertyInvitation extends Mailable
         return sprintf(
             '%s has invited you to join %s on %s as a %s.',
             $this->invitation->invitedBy->name,
-            $this->invitation->property->name,
+            $this->invitation->project->name,
             config('app.name'),
             ucfirst($this->invitation->role)
         );
