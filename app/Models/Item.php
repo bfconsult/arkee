@@ -15,9 +15,14 @@ class Item extends Model
         'height_mm',
         'width_mm',
         'depth_mm',
-        'packaging_type',
+        'packaging_type_id',
         'notes',
     ];
+
+    public function packagingType()
+    {
+        return $this->belongsTo(PackagingType::class);
+    }
 
     public function components()
     {

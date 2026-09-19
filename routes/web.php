@@ -7,6 +7,7 @@ use App\Http\Controllers\DeliveryLocationController;
 use App\Http\Controllers\FurnitureScheduleLineController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\PackagingTypeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PurchaseOrderController;
@@ -61,6 +62,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('clients', ClientController::class)->except('show');
     Route::resource('suppliers', SupplierController::class)->except('show');
     Route::resource('delivery-locations', DeliveryLocationController::class)->except('show');
+    Route::resource('packaging-types', PackagingTypeController::class)->except('show');
     Route::resource('items', ItemController::class)->except('show');
     Route::resource('items.components', ComponentController::class)->except('show');
     Route::resource('items.components.materials', MaterialController::class)->except('show');

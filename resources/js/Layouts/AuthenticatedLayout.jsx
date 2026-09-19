@@ -8,6 +8,7 @@ const NAV_ITEMS = [
     { label: 'Clients', route: 'clients.index' },
     { label: 'Suppliers', route: 'suppliers.index' },
     { label: 'Delivery Locations', route: 'delivery-locations.index' },
+    { label: 'Packaging Types', route: 'packaging-types.index' },
     { label: 'Items', route: 'items.index' },
     { label: 'Projects', route: 'projects.index' },
 ];

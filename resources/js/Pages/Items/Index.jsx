@@ -17,7 +17,11 @@ export default function Index({ items }) {
                 columns={[
                     { key: 'catalogue_no', label: 'Catalogue No.' },
                     { key: 'item_type', label: 'Item Type' },
-                    { key: 'packaging_type', label: 'Packaging' },
+                    {
+                        key: 'packaging_type',
+                        label: 'Packaging',
+                        render: (row) => row.packaging_type?.name ?? '—',
+                    },
                     {
                         key: 'dimensions',
                         label: 'Dimensions (H x W x D mm)',

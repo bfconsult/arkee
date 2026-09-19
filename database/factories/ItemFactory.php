@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\PackagingType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,7 @@ class ItemFactory extends Factory
             'height_mm' => fake()->numberBetween(400, 1200),
             'width_mm' => fake()->numberBetween(400, 2000),
             'depth_mm' => fake()->numberBetween(400, 1000),
-            'packaging_type' => fake()->randomElement(['Crate', 'Carton', 'Pallet']),
+            'packaging_type_id' => PackagingType::factory(),
             'notes' => null,
         ];
     }

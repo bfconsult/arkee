@@ -1,10 +1,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
+import Select from '@/Components/Select';
 import InputError from '@/Components/InputError';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Form({ item }) {
+export default function Form({ item, packagingTypes }) {
     const isNew = !item;
     const title = isNew ? 'Add Item' : `Edit ${item.catalogue_no ?? 'Item'}`;
 
@@ -14,7 +15,7 @@ export default function Form({ item }) {
         height_mm: item?.height_mm ?? '',
         width_mm: item?.width_mm ?? '',
         depth_mm: item?.depth_mm ?? '',
-        packaging_type: item?.packaging_type ?? '',
+        packaging_type_id: item?.packaging_type_id ?? '',
         notes: item?.notes ?? '',
     });
 
@@ -93,14 +94,21 @@ export default function Form({ item }) {
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="packaging_type" value="Packaging Type" />
-                        <TextInput
-                            id="packaging_type"
+                        <InputLabel htmlFor="packaging_type_id" value="Packaging Type" />
+                        <Select
+                            id="packaging_type_id"
                             className="mt-1 block w-full"
-                            value={data.packaging_type}
-                            onChange={(e) => setData('packaging_type', e.target.value)}
-                        />
-                        <InputError message={errors.packaging_type} className="mt-1" />
+                            value={data.packaging_type_id}
+                            onChange={(e) => setData('packaging_type_id', e.target.value)}
+                        >
+                            <option value="">— None —</option>
+                            {packagingTypes.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                    {p.name}
+                                </option>
+                            ))}
+                        </Select>
+                        <InputError message={errors.packaging_type_id} className="mt-1" />
                     </div>
 
                     <div>

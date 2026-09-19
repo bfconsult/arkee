@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Item;
+use App\Models\PackagingType;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -11,7 +12,7 @@ class ItemController extends Controller
     public function index()
     {
         return Inertia::render('Items/Index', [
-            'items' => Item::orderBy('catalogue_no')->get(),
+            'items' => Item::with('packagingType')->orderBy('catalogue_no')->get(),
         ]);
     }
 
@@ -19,6 +20,7 @@ class ItemController extends Controller
     {
         return Inertia::render('Items/Form', [
             'item' => null,
+            'packagingTypes' => $this->packagingTypeOptions(),
         ]);
     }
 
@@ -33,6 +35,7 @@ class ItemController extends Controller
     {
         return Inertia::render('Items/Form', [
             'item' => $item,
+            'packagingTypes' => $this->packagingTypeOptions(),
         ]);
     }
 
@@ -50,6 +53,11 @@ class ItemController extends Controller
         return redirect()->route('items.index')->with('success', 'Item deleted.');
     }
 
+    private function packagingTypeOptions()
+    {
+        return PackagingType::orderBy('name')->get(['id', 'name']);
+    }
+
     private function validated(Request $request): array
     {
         return $request->validate([
@@ -58,7 +66,7 @@ class ItemController extends Controller
             'height_mm' => 'nullable|integer|min:0',
             'width_mm' => 'nullable|integer|min:0',
             'depth_mm' => 'nullable|integer|min:0',
-            'packaging_type' => 'nullable|string|max:255',
+            'packaging_type_id' => 'nullable|exists:packaging_types,id',
             'notes' => 'nullable|string',
         ]);
     }

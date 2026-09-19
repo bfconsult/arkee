@@ -15,7 +15,6 @@ return new class extends Migration
             $table->unsignedInteger('height_mm')->nullable();
             $table->unsignedInteger('width_mm')->nullable();
             $table->unsignedInteger('depth_mm')->nullable();
-            $table->string('packaging_type')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
         });

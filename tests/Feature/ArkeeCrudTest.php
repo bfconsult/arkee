@@ -7,6 +7,7 @@ use App\Models\DeliveryLocation;
 use App\Models\FurnitureScheduleLine;
 use App\Models\Item;
 use App\Models\Material;
+use App\Models\PackagingType;
 use App\Models\Project;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
@@ -70,6 +71,24 @@ test('a delivery location can be created, updated, and deleted', function () {
         ->delete(route('delivery-locations.destroy', $location))
         ->assertRedirect(route('delivery-locations.index'));
     expect(DeliveryLocation::count())->toBe(0);
+});
+
+test('a packaging type can be created, updated, and deleted', function () {
+    $this->actingAs($this->user)
+        ->post(route('packaging-types.store'), ['name' => 'Crate'])
+        ->assertRedirect(route('packaging-types.index'));
+
+    $packagingType = PackagingType::sole();
+
+    $this->actingAs($this->user)
+        ->put(route('packaging-types.update', $packagingType), ['name' => 'Carton'])
+        ->assertRedirect(route('packaging-types.index'));
+    expect($packagingType->fresh()->name)->toBe('Carton');
+
+    $this->actingAs($this->user)
+        ->delete(route('packaging-types.destroy', $packagingType))
+        ->assertRedirect(route('packaging-types.index'));
+    expect(PackagingType::count())->toBe(0);
 });
 
 test('an item can be created, updated, and deleted', function () {
