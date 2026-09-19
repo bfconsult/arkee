@@ -24,6 +24,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // without this it would silently decrypt to null on every request.
         $middleware->encryptCookies(except: ['timezone']);
         $middleware->throttleApi();
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

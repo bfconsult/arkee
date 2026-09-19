@@ -15,7 +15,7 @@ function resolveRoute(def, id) {
     return route(def.name, id !== undefined ? [...base, id] : base);
 }
 
-export default function DataTable({ columns, rows, editRoute, destroyRoute, addRoute, addLabel = 'Add New', emptyMessage = 'Nothing here yet.' }) {
+export default function DataTable({ columns, rows, editRoute, destroyRoute, addRoute, addLabel = 'Add New', emptyMessage = 'Nothing here yet.', renderRowExtra }) {
     const destroy = (row) => {
         if (confirm('Are you sure you want to delete this?')) {
             router.delete(resolveRoute(destroyRoute, row.id));
@@ -57,6 +57,7 @@ export default function DataTable({ columns, rows, editRoute, destroyRoute, addR
                                         </td>
                                     ))}
                                     <td className="px-4 py-2 text-right whitespace-nowrap">
+                                        {renderRowExtra && renderRowExtra(row)}
                                         <Link
                                             href={resolveRoute(editRoute, row.id)}
                                             className="text-green-700 hover:text-green-900 mr-4"

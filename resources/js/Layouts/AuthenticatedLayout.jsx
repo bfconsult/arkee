@@ -16,6 +16,11 @@ const NAV_ITEMS = [
 export default function AuthenticatedLayout({ title, children }) {
     const { auth, flash } = usePage().props;
 
+    const navItems =
+        auth.user.role === 'admin'
+            ? [...NAV_ITEMS, { label: 'Users', route: 'users.index' }]
+            : NAV_ITEMS;
+
     return (
         <div className="min-h-screen bg-gray-100 flex">
             {/* Sidebar - computer-first layout, not the mobile bottom-nav
@@ -27,7 +32,7 @@ export default function AuthenticatedLayout({ title, children }) {
                 </div>
 
                 <nav className="flex-1 overflow-y-auto py-3">
-                    {NAV_ITEMS.map((item) => {
+                    {navItems.map((item) => {
                         const active = route().current(item.route) || route().current(item.route.replace('.index', '.*'));
                         return (
                             <Link

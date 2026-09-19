@@ -9,6 +9,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -63,6 +64,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('projects', ProjectController::class)->except('show');
     Route::resource('projects.schedule-lines', FurnitureScheduleLineController::class)->except('show');
     Route::resource('projects.purchase-orders', PurchaseOrderController::class)->except('show');
+
+    Route::middleware('admin')->group(function () {
+        Route::patch('/users/{user}/approve', [UserController::class, 'approve'])->name('users.approve');
+        Route::resource('users', UserController::class)->except('show');
+    });
 });
 
 require __DIR__.'/auth.php';
