@@ -21,6 +21,11 @@ export default function Index({ item, components }) {
                     emptyMessage="No components yet."
                     columns={[
                         { key: 'name', label: 'Name' },
+                        {
+                            key: 'material',
+                            label: 'Material',
+                            render: (row) => row.material?.name ?? '—',
+                        },
                         { key: 'quantity', label: 'Quantity' },
                     ]}
                 />

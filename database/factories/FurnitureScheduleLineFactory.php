@@ -28,7 +28,7 @@ class FurnitureScheduleLineFactory extends Factory
             'required_by' => null,
             'delivery_location_id' => null,
             'include_on_po' => false,
-            'colour_id' => null,
+            'finish_id' => null,
             'internal_cost_manual' => null,
         ];
     }

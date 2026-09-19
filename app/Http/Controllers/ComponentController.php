@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Component;
 use App\Models\Item;
+use App\Models\Material;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -13,7 +15,7 @@ class ComponentController extends Controller
     {
         return Inertia::render('Components/Index', [
             'item' => $item,
-            'components' => $item->components()->orderBy('name')->get(),
+            'components' => $item->components()->with('material')->orderBy('name')->get(),
         ]);
     }
 
@@ -22,6 +24,7 @@ class ComponentController extends Controller
         return Inertia::render('Components/Form', [
             'item' => $item,
             'component' => null,
+            ...$this->options(),
         ]);
     }
 
@@ -37,6 +40,7 @@ class ComponentController extends Controller
         return Inertia::render('Components/Form', [
             'item' => $item,
             'component' => $component,
+            ...$this->options(),
         ]);
     }
 
@@ -54,12 +58,25 @@ class ComponentController extends Controller
         return redirect()->route('items.components.index', $item)->with('success', 'Component deleted.');
     }
 
+    private function options(): array
+    {
+        return [
+            'materials' => Material::orderBy('name')->get(['id', 'name']),
+            'suppliers' => Supplier::orderBy('name')->get(['id', 'name']),
+        ];
+    }
+
     private function validated(Request $request): array
     {
         return $request->validate([
+            'material_id' => 'required|exists:materials,id',
             'name' => 'required|string|max:255',
             'quantity' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',
+            'supplier_id' => 'nullable|exists:suppliers,id',
+            'code_supplier' => 'nullable|string|max:255',
+            'unit_cost' => 'nullable|numeric|min:0',
+            'meterage' => 'nullable|numeric|min:0',
         ]);
     }
 }

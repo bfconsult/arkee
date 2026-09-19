@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Colour;
 use App\Models\DeliveryLocation;
+use App\Models\Finish;
 use App\Models\FurnitureScheduleLine;
 use App\Models\Item;
 use App\Models\Project;
@@ -65,7 +65,7 @@ class FurnitureScheduleLineController extends Controller
         return [
             'items' => Item::orderBy('catalogue_no')->get(['id', 'catalogue_no', 'item_type']),
             'suppliers' => Supplier::orderBy('name')->get(['id', 'name']),
-            'colours' => Colour::orderBy('name')->get(['id', 'name']),
+            'finishes' => Finish::orderBy('name')->get(['id', 'name']),
             'deliveryLocations' => DeliveryLocation::orderBy('name')->get(['id', 'name']),
             'parentLineOptions' => $project->furnitureScheduleLines()
                 ->where('row_type', FurnitureScheduleLine::ROW_TYPE_PARENT)
@@ -89,7 +89,7 @@ class FurnitureScheduleLineController extends Controller
             'required_by' => 'nullable|date',
             'delivery_location_id' => 'nullable|exists:delivery_locations,id',
             'include_on_po' => 'boolean',
-            'colour_id' => 'nullable|exists:colours,id',
+            'finish_id' => 'nullable|exists:finishes,id',
             'internal_cost_manual' => 'nullable|numeric|min:0',
         ]);
 

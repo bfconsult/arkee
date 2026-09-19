@@ -4,21 +4,21 @@ import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Form({ item, component, material, colour }) {
-    const isNew = !colour;
-    const title = isNew ? 'Add Colour' : `Edit ${colour.name}`;
+export default function Form({ material, finish }) {
+    const isNew = !finish;
+    const title = isNew ? 'Add Finish' : `Edit ${finish.name}`;
 
     const { data, setData, post, put, processing, errors } = useForm({
-        name: colour?.name ?? '',
-        code_supplier: colour?.code_supplier ?? '',
-        notes: colour?.notes ?? '',
+        name: finish?.name ?? '',
+        code_supplier: finish?.code_supplier ?? '',
+        notes: finish?.notes ?? '',
     });
 
     const submit = (e) => {
         e.preventDefault();
         isNew
-            ? post(route('items.components.materials.colours.store', [item.id, component.id, material.id]))
-            : put(route('items.components.materials.colours.update', [item.id, component.id, material.id, colour.id]));
+            ? post(route('materials.finishes.store', material.id))
+            : put(route('materials.finishes.update', [material.id, finish.id]));
     };
 
     return (
@@ -64,7 +64,7 @@ export default function Form({ item, component, material, colour }) {
 
                     <div className="flex justify-end gap-4">
                         <Link
-                            href={route('items.components.materials.colours.index', [item.id, component.id, material.id])}
+                            href={route('materials.finishes.index', material.id)}
                             className="px-4 py-2 text-gray-700 hover:text-gray-900"
                         >
                             Cancel
@@ -74,7 +74,7 @@ export default function Form({ item, component, material, colour }) {
                             disabled={processing}
                             className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
                         >
-                            {isNew ? 'Add Colour' : 'Save Changes'}
+                            {isNew ? 'Add Finish' : 'Save Changes'}
                         </button>
                     </div>
                 </form>

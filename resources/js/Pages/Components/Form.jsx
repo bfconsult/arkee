@@ -1,17 +1,23 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
+import Select from '@/Components/Select';
 import InputError from '@/Components/InputError';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Form({ item, component }) {
+export default function Form({ item, component, materials, suppliers }) {
     const isNew = !component;
     const title = isNew ? 'Add Component' : `Edit ${component.name}`;
 
     const { data, setData, post, put, processing, errors } = useForm({
+        material_id: component?.material_id ?? '',
         name: component?.name ?? '',
         quantity: component?.quantity ?? '',
         notes: component?.notes ?? '',
+        supplier_id: component?.supplier_id ?? '',
+        code_supplier: component?.code_supplier ?? '',
+        unit_cost: component?.unit_cost ?? '',
+        meterage: component?.meterage ?? '',
     });
 
     const submit = (e) => {
@@ -40,6 +46,24 @@ export default function Form({ item, component }) {
                     </div>
 
                     <div>
+                        <InputLabel htmlFor="material_id" value="Material" />
+                        <Select
+                            id="material_id"
+                            className="mt-1 block w-full"
+                            value={data.material_id}
+                            onChange={(e) => setData('material_id', e.target.value)}
+                        >
+                            <option value="">— Select —</option>
+                            {materials.map((m) => (
+                                <option key={m.id} value={m.id}>
+                                    {m.name}
+                                </option>
+                            ))}
+                        </Select>
+                        <InputError message={errors.material_id} className="mt-1" />
+                    </div>
+
+                    <div>
                         <InputLabel htmlFor="quantity" value="Quantity" />
                         <TextInput
                             id="quantity"
@@ -49,6 +73,71 @@ export default function Form({ item, component }) {
                             onChange={(e) => setData('quantity', e.target.value)}
                         />
                         <InputError message={errors.quantity} className="mt-1" />
+                    </div>
+
+                    <div className="border-t pt-4">
+                        <h3 className="text-sm font-medium text-gray-700 mb-2">
+                            This Component's Own Sourcing (optional — leave blank if the Material above already carries this)
+                        </h3>
+
+                        <div className="space-y-4">
+                            <div>
+                                <InputLabel htmlFor="supplier_id" value="Supplier" />
+                                <Select
+                                    id="supplier_id"
+                                    className="mt-1 block w-full"
+                                    value={data.supplier_id}
+                                    onChange={(e) => setData('supplier_id', e.target.value)}
+                                >
+                                    <option value="">— None —</option>
+                                    {suppliers.map((s) => (
+                                        <option key={s.id} value={s.id}>
+                                            {s.name}
+                                        </option>
+                                    ))}
+                                </Select>
+                                <InputError message={errors.supplier_id} className="mt-1" />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <InputLabel htmlFor="code_supplier" value="Supplier Code" />
+                                    <TextInput
+                                        id="code_supplier"
+                                        className="mt-1 block w-full"
+                                        value={data.code_supplier}
+                                        onChange={(e) => setData('code_supplier', e.target.value)}
+                                    />
+                                    <InputError message={errors.code_supplier} className="mt-1" />
+                                </div>
+
+                                <div>
+                                    <InputLabel htmlFor="unit_cost" value="Unit Cost" />
+                                    <TextInput
+                                        id="unit_cost"
+                                        type="number"
+                                        step="0.01"
+                                        className="mt-1 block w-full"
+                                        value={data.unit_cost}
+                                        onChange={(e) => setData('unit_cost', e.target.value)}
+                                    />
+                                    <InputError message={errors.unit_cost} className="mt-1" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <InputLabel htmlFor="meterage" value="Meterage" />
+                                <TextInput
+                                    id="meterage"
+                                    type="number"
+                                    step="0.01"
+                                    className="mt-1 block w-full"
+                                    value={data.meterage}
+                                    onChange={(e) => setData('meterage', e.target.value)}
+                                />
+                                <InputError message={errors.meterage} className="mt-1" />
+                            </div>
+                        </div>
                     </div>
 
                     <div>
@@ -62,17 +151,6 @@ export default function Form({ item, component }) {
                         />
                         <InputError message={errors.notes} className="mt-1" />
                     </div>
-
-                    {!isNew && (
-                        <div className="border-t pt-4">
-                            <Link
-                                href={route('items.components.materials.index', [item.id, component.id])}
-                                className="px-4 py-2 text-sm bg-gray-100 rounded-md hover:bg-gray-200"
-                            >
-                                Materials →
-                            </Link>
-                        </div>
-                    )}
 
                     <div className="flex justify-end gap-4">
                         <Link

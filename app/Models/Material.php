@@ -10,7 +10,6 @@ class Material extends Model
     use HasFactory;
 
     protected $fillable = [
-        'component_id',
         'name',
         'supplier_id',
         'code_supplier',
@@ -19,9 +18,9 @@ class Material extends Model
         'notes',
     ];
 
-    public function component()
+    public function components()
     {
-        return $this->belongsTo(Component::class);
+        return $this->hasMany(Component::class);
     }
 
     public function supplier()
@@ -29,8 +28,8 @@ class Material extends Model
         return $this->belongsTo(Supplier::class);
     }
 
-    public function colours()
+    public function finishes()
     {
-        return $this->hasMany(Colour::class);
+        return $this->hasMany(Finish::class);
     }
 }

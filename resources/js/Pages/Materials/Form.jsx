@@ -5,7 +5,7 @@ import Select from '@/Components/Select';
 import InputError from '@/Components/InputError';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Form({ item, component, material, suppliers }) {
+export default function Form({ material, suppliers }) {
     const isNew = !material;
     const title = isNew ? 'Add Material' : `Edit ${material.name}`;
 
@@ -20,9 +20,7 @@ export default function Form({ item, component, material, suppliers }) {
 
     const submit = (e) => {
         e.preventDefault();
-        isNew
-            ? post(route('items.components.materials.store', [item.id, component.id]))
-            : put(route('items.components.materials.update', [item.id, component.id, material.id]));
+        isNew ? post(route('materials.store')) : put(route('materials.update', material.id));
     };
 
     return (
@@ -51,7 +49,7 @@ export default function Form({ item, component, material, suppliers }) {
                             value={data.supplier_id}
                             onChange={(e) => setData('supplier_id', e.target.value)}
                         >
-                            <option value="">— Select —</option>
+                            <option value="">— None —</option>
                             {suppliers.map((s) => (
                                 <option key={s.id} value={s.id}>
                                     {s.name}
@@ -115,17 +113,17 @@ export default function Form({ item, component, material, suppliers }) {
                     {!isNew && (
                         <div className="border-t pt-4">
                             <Link
-                                href={route('items.components.materials.colours.index', [item.id, component.id, material.id])}
+                                href={route('materials.finishes.index', material.id)}
                                 className="px-4 py-2 text-sm bg-gray-100 rounded-md hover:bg-gray-200"
                             >
-                                Colours →
+                                Finishes →
                             </Link>
                         </div>
                     )}
 
                     <div className="flex justify-end gap-4">
                         <Link
-                            href={route('items.components.materials.index', [item.id, component.id])}
+                            href={route('materials.index')}
                             className="px-4 py-2 text-gray-700 hover:text-gray-900"
                         >
                             Cancel

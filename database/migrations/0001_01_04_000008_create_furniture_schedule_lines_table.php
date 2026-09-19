@@ -26,7 +26,7 @@ return new class extends Migration
             $table->date('required_by')->nullable();
             $table->foreignId('delivery_location_id')->nullable()->constrained()->nullOnDelete();
             $table->boolean('include_on_po')->default(false);
-            $table->foreignId('colour_id')->nullable()->constrained('colours')->nullOnDelete();
+            $table->foreignId('finish_id')->nullable()->constrained('finishes')->nullOnDelete();
             $table->decimal('internal_cost_manual', 10, 2)->nullable();
             $table->timestamps();
         });

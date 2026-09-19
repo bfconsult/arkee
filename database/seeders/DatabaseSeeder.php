@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Client;
-use App\Models\Colour;
 use App\Models\Component;
 use App\Models\DeliveryLocation;
+use App\Models\Finish;
 use App\Models\FurnitureScheduleLine;
 use App\Models\Item;
 use App\Models\Material;
@@ -30,28 +30,38 @@ class DatabaseSeeder extends Seeder
         DeliveryLocation::factory()->count(4)->create();
         $packagingTypes = PackagingType::factory()->count(5)->create();
 
+        // Materials are a shared catalogue now - build the pool (with their
+        // Finishes) before any Item/Component references them.
+        $materials = Material::factory()
+            ->count(8)
+            ->create(['supplier_id' => fn () => $suppliers->random()->id])
+            ->each(function (Material $material) {
+                Finish::factory()->count(rand(1, 4))->for($material)->create();
+            });
+
         Item::factory()
             ->count(12)
             ->create(['packaging_type_id' => fn () => $packagingTypes->random()->id])
-            ->each(function (Item $item) use ($suppliers) {
+            ->each(function (Item $item) use ($materials) {
                 Component::factory()
                     ->count(rand(1, 3))
                     ->for($item)
-                    ->create()
-                    ->each(function (Component $component) use ($suppliers) {
-                        Material::factory()
-                            ->count(rand(1, 2))
-                            ->for($component)
-                            ->create(['supplier_id' => fn () => $suppliers->random()->id])
-                            ->each(function (Material $material) {
-                                Colour::factory()->count(rand(1, 3))->for($material)->create();
-                            });
-                    });
+                    ->create(['material_id' => fn () => $materials->random()->id]);
             });
 
-        $items = Item::all();
-        $colours = Colour::all();
         $pmUsers = User::all();
+
+        // Projects need a PM user, and this seeder deliberately never creates
+        // one - skip them until someone has registered (they'll bootstrap as
+        // admin) rather than crashing or seeding a throwaway user.
+        if ($pmUsers->isEmpty()) {
+            $this->command?->warn('No users yet - skipping Projects/Schedule Lines/Purchase Orders. Register an account, then re-run db:seed to also get those.');
+
+            return;
+        }
+
+        $items = Item::all();
+        $finishes = Finish::all();
 
         Project::factory()
             ->count(5)
@@ -59,13 +69,13 @@ class DatabaseSeeder extends Seeder
                 'client_id' => fn () => $clients->random()->id,
                 'pm_user_id' => fn () => $pmUsers->random()->id,
             ])
-            ->each(function (Project $project) use ($items, $colours, $suppliers) {
+            ->each(function (Project $project) use ($items, $finishes, $suppliers) {
                 FurnitureScheduleLine::factory()
                     ->count(rand(3, 6))
                     ->for($project)
                     ->create([
                         'item_id' => fn () => $items->random()->id,
-                        'colour_id' => fn () => $colours->isNotEmpty() ? $colours->random()->id : null,
+                        'finish_id' => fn () => $finishes->isNotEmpty() ? $finishes->random()->id : null,
                     ]);
 
                 PurchaseOrder::factory()

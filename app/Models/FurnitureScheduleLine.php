@@ -26,7 +26,7 @@ class FurnitureScheduleLine extends Model
         'required_by',
         'delivery_location_id',
         'include_on_po',
-        'colour_id',
+        'finish_id',
         'internal_cost_manual',
     ];
 
@@ -65,9 +65,9 @@ class FurnitureScheduleLine extends Model
         return $this->belongsTo(DeliveryLocation::class);
     }
 
-    public function colour()
+    public function finish()
     {
-        return $this->belongsTo(Colour::class);
+        return $this->belongsTo(Finish::class);
     }
 
     public function purchaseOrders()

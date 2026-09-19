@@ -5,7 +5,7 @@ import Select from '@/Components/Select';
 import InputError from '@/Components/InputError';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Form({ project, line, items, suppliers, colours, deliveryLocations, parentLineOptions }) {
+export default function Form({ project, line, items, suppliers, finishes, deliveryLocations, parentLineOptions }) {
     const isNew = !line;
     const title = isNew ? 'Add Schedule Line' : 'Edit Schedule Line';
 
@@ -22,7 +22,7 @@ export default function Form({ project, line, items, suppliers, colours, deliver
         required_by: line?.required_by ?? '',
         delivery_location_id: line?.delivery_location_id ?? '',
         include_on_po: line?.include_on_po ?? false,
-        colour_id: line?.colour_id ?? '',
+        finish_id: line?.finish_id ?? '',
         internal_cost_manual: line?.internal_cost_manual ?? '',
     });
 
@@ -114,21 +114,21 @@ export default function Form({ project, line, items, suppliers, colours, deliver
                         </div>
 
                         <div>
-                            <InputLabel htmlFor="colour_id" value="Colour" />
+                            <InputLabel htmlFor="finish_id" value="Finish" />
                             <Select
-                                id="colour_id"
+                                id="finish_id"
                                 className="mt-1 block w-full"
-                                value={data.colour_id}
-                                onChange={(e) => setData('colour_id', e.target.value)}
+                                value={data.finish_id}
+                                onChange={(e) => setData('finish_id', e.target.value)}
                             >
                                 <option value="">— None —</option>
-                                {colours.map((c) => (
-                                    <option key={c.id} value={c.id}>
-                                        {c.name}
+                                {finishes.map((f) => (
+                                    <option key={f.id} value={f.id}>
+                                        {f.name}
                                     </option>
                                 ))}
                             </Select>
-                            <InputError message={errors.colour_id} className="mt-1" />
+                            <InputError message={errors.finish_id} className="mt-1" />
                         </div>
 
                         <div>
