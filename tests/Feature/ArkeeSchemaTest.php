@@ -1,11 +1,13 @@
 <?php
 
 use App\Models\Attachment;
-use App\Models\CatalogueItem;
 use App\Models\Client;
+use App\Models\Colour;
+use App\Models\Component;
 use App\Models\DeliveryLocation;
-use App\Models\Finish;
 use App\Models\FurnitureScheduleLine;
+use App\Models\Item;
+use App\Models\Material;
 use App\Models\Project;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
@@ -23,48 +25,55 @@ test('a client has projects, each with a PM user', function () {
     expect($pm->projectsAsPm->first()->is($project))->toBeTrue();
 });
 
-test('catalogue items support a self-referencing parent/sub structure with fabric on the sub', function () {
+test('an item breaks down into components, materials, and colours', function () {
     $supplier = Supplier::factory()->create();
-    $finish = Finish::factory()->create(['type' => Finish::TYPE_TIMBER_STAIN]);
 
-    $parent = CatalogueItem::factory()->for($supplier)->create();
-    $sub = CatalogueItem::factory()->sub()->for($supplier)->for($finish)->create([
-        'parent_item_id' => $parent->id,
-    ]);
+    $item = Item::factory()->create();
+    $component = Component::factory()->for($item)->create();
+    $material = Material::factory()->for($component)->for($supplier)->create();
+    $colour = Colour::factory()->for($material)->create();
 
-    expect($parent->subItems)->toHaveCount(1);
-    expect($parent->subItems->first()->is($sub))->toBeTrue();
-    expect($sub->parentItem->is($parent))->toBeTrue();
-    expect($sub->row_type)->toBe(CatalogueItem::ROW_TYPE_SUB);
-    expect($sub->meterage)->not->toBeNull();
-    expect($sub->finish->is($finish))->toBeTrue();
+    expect($item->components)->toHaveCount(1);
+    expect($item->components->first()->is($component))->toBeTrue();
+    expect($component->item->is($item))->toBeTrue();
+
+    expect($component->materials)->toHaveCount(1);
+    expect($material->component->is($component))->toBeTrue();
+    expect($material->supplier->is($supplier))->toBeTrue();
+
+    expect($material->colours)->toHaveCount(1);
+    expect($colour->material->is($material))->toBeTrue();
 });
 
-test('a furniture schedule line links a project, catalogue item, and optional delivery location', function () {
+test('a furniture schedule line links a project, item, and optional delivery location', function () {
     $project = Project::factory()->create();
-    $item = CatalogueItem::factory()->create();
+    $item = Item::factory()->create();
     $location = DeliveryLocation::factory()->create();
 
     $line = FurnitureScheduleLine::factory()
         ->for($project)
-        ->for($item, 'catalogueItem')
+        ->for($item)
         ->for($location)
         ->create();
 
     expect($project->furnitureScheduleLines->first()->is($line))->toBeTrue();
-    expect($line->catalogueItem->is($item))->toBeTrue();
+    expect($line->item->is($item))->toBeTrue();
     expect($line->deliveryLocation->is($location))->toBeTrue();
 });
 
-test('furniture schedule lines self-reference for parent/sub rows the same way catalogue items do', function () {
+test('furniture schedule lines self-reference for parent/sub rows, and can pick a colour', function () {
     $project = Project::factory()->create();
+    $material = Material::factory()->create();
+    $colour = Colour::factory()->for($material)->create();
+
     $parentLine = FurnitureScheduleLine::factory()->for($project)->create();
-    $subLine = FurnitureScheduleLine::factory()->sub()->for($project)->create([
+    $subLine = FurnitureScheduleLine::factory()->sub()->for($project)->for($colour)->create([
         'parent_line_id' => $parentLine->id,
     ]);
 
     expect($parentLine->subLines->first()->is($subLine))->toBeTrue();
     expect($subLine->parentLine->is($parentLine))->toBeTrue();
+    expect($subLine->colour->is($colour))->toBeTrue();
 });
 
 test('a purchase order belongs to a project and supplier, and can include multiple schedule lines', function () {
@@ -82,14 +91,20 @@ test('a purchase order belongs to a project and supplier, and can include multip
     expect($line1->purchaseOrders->first()->is($po))->toBeTrue();
 });
 
-test('attachments attach to any entity via the polymorphic entity_type/entity_id columns', function () {
-    $item = CatalogueItem::factory()->create();
-
-    $attachment = Attachment::factory()->for($item, 'entity')->create([
+test('attachments attach to an item or a colour via the polymorphic entity_type/entity_id columns', function () {
+    $item = Item::factory()->create();
+    $itemAttachment = Attachment::factory()->for($item, 'entity')->create([
         'kind' => Attachment::KIND_IMAGE,
     ]);
 
     expect($item->attachments)->toHaveCount(1);
-    expect($item->attachments->first()->is($attachment))->toBeTrue();
-    expect($attachment->entity->is($item))->toBeTrue();
+    expect($item->attachments->first()->is($itemAttachment))->toBeTrue();
+    expect($itemAttachment->entity->is($item))->toBeTrue();
+
+    $colour = Colour::factory()->create();
+    $colourAttachment = Attachment::factory()->for($colour, 'entity')->create([
+        'kind' => Attachment::KIND_FABRIC_STAIN,
+    ]);
+
+    expect($colour->attachments->first()->is($colourAttachment))->toBeTrue();
 });

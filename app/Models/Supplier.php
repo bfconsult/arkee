@@ -18,9 +18,9 @@ class Supplier extends Model
         'please_note',
     ];
 
-    public function catalogueItems()
+    public function materials()
     {
-        return $this->hasMany(CatalogueItem::class);
+        return $this->hasMany(Material::class);
     }
 
     /**

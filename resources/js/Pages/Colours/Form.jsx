@@ -1,22 +1,24 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
-import Select from '@/Components/Select';
 import InputError from '@/Components/InputError';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Form({ finish }) {
-    const isNew = !finish;
-    const title = isNew ? 'Add Finish' : `Edit ${finish.name}`;
+export default function Form({ item, component, material, colour }) {
+    const isNew = !colour;
+    const title = isNew ? 'Add Colour' : `Edit ${colour.name}`;
 
     const { data, setData, post, put, processing, errors } = useForm({
-        name: finish?.name ?? '',
-        type: finish?.type ?? 'other',
+        name: colour?.name ?? '',
+        code_supplier: colour?.code_supplier ?? '',
+        notes: colour?.notes ?? '',
     });
 
     const submit = (e) => {
         e.preventDefault();
-        isNew ? post(route('finishes.store')) : put(route('finishes.update', finish.id));
+        isNew
+            ? post(route('items.components.materials.colours.store', [item.id, component.id, material.id]))
+            : put(route('items.components.materials.colours.update', [item.id, component.id, material.id, colour.id]));
     };
 
     return (
@@ -38,23 +40,31 @@ export default function Form({ finish }) {
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="type" value="Type" />
-                        <Select
-                            id="type"
+                        <InputLabel htmlFor="code_supplier" value="Supplier Code" />
+                        <TextInput
+                            id="code_supplier"
                             className="mt-1 block w-full"
-                            value={data.type}
-                            onChange={(e) => setData('type', e.target.value)}
-                        >
-                            <option value="timber_stain">Timber Stain</option>
-                            <option value="fabric">Fabric</option>
-                            <option value="other">Other</option>
-                        </Select>
-                        <InputError message={errors.type} className="mt-1" />
+                            value={data.code_supplier}
+                            onChange={(e) => setData('code_supplier', e.target.value)}
+                        />
+                        <InputError message={errors.code_supplier} className="mt-1" />
+                    </div>
+
+                    <div>
+                        <InputLabel htmlFor="notes" value="Notes" />
+                        <textarea
+                            id="notes"
+                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500"
+                            rows={3}
+                            value={data.notes}
+                            onChange={(e) => setData('notes', e.target.value)}
+                        />
+                        <InputError message={errors.notes} className="mt-1" />
                     </div>
 
                     <div className="flex justify-end gap-4">
                         <Link
-                            href={route('finishes.index')}
+                            href={route('items.components.materials.colours.index', [item.id, component.id, material.id])}
                             className="px-4 py-2 text-gray-700 hover:text-gray-900"
                         >
                             Cancel
@@ -64,7 +74,7 @@ export default function Form({ finish }) {
                             disabled={processing}
                             className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
                         >
-                            {isNew ? 'Add Finish' : 'Save Changes'}
+                            {isNew ? 'Add Colour' : 'Save Changes'}
                         </button>
                     </div>
                 </form>

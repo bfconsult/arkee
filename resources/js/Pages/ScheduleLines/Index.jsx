@@ -21,9 +21,9 @@ export default function Index({ project, lines }) {
                     emptyMessage="No schedule lines yet."
                     columns={[
                         {
-                            key: 'catalogue_item',
+                            key: 'item',
                             label: 'Item',
-                            render: (row) => row.catalogue_item?.catalogue_no ?? '—',
+                            render: (row) => row.item?.catalogue_no ?? '—',
                         },
                         {
                             key: 'row_type',

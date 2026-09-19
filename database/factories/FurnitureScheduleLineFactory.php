@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\CatalogueItem;
 use App\Models\FurnitureScheduleLine;
+use App\Models\Item;
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -16,7 +16,7 @@ class FurnitureScheduleLineFactory extends Factory
     {
         return [
             'project_id' => Project::factory(),
-            'item_id' => CatalogueItem::factory(),
+            'item_id' => Item::factory(),
             'row_type' => FurnitureScheduleLine::ROW_TYPE_PARENT,
             'parent_line_id' => null,
             'fabric_supplier_id' => null,
@@ -28,7 +28,7 @@ class FurnitureScheduleLineFactory extends Factory
             'required_by' => null,
             'delivery_location_id' => null,
             'include_on_po' => false,
-            'finish_id' => null,
+            'colour_id' => null,
             'internal_cost_manual' => null,
         ];
     }

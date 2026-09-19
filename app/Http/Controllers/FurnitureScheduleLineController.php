@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CatalogueItem;
+use App\Models\Colour;
 use App\Models\DeliveryLocation;
-use App\Models\Finish;
 use App\Models\FurnitureScheduleLine;
+use App\Models\Item;
 use App\Models\Project;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
@@ -17,7 +17,7 @@ class FurnitureScheduleLineController extends Controller
     {
         return Inertia::render('ScheduleLines/Index', [
             'project' => $project,
-            'lines' => $project->furnitureScheduleLines()->with(['catalogueItem', 'parentLine'])->get(),
+            'lines' => $project->furnitureScheduleLines()->with(['item', 'parentLine'])->get(),
         ]);
     }
 
@@ -63,9 +63,9 @@ class FurnitureScheduleLineController extends Controller
     private function options(Project $project, ?FurnitureScheduleLine $editing = null): array
     {
         return [
-            'catalogueItems' => CatalogueItem::orderBy('catalogue_no')->get(['id', 'catalogue_no', 'item_type']),
+            'items' => Item::orderBy('catalogue_no')->get(['id', 'catalogue_no', 'item_type']),
             'suppliers' => Supplier::orderBy('name')->get(['id', 'name']),
-            'finishes' => Finish::orderBy('name')->get(['id', 'name']),
+            'colours' => Colour::orderBy('name')->get(['id', 'name']),
             'deliveryLocations' => DeliveryLocation::orderBy('name')->get(['id', 'name']),
             'parentLineOptions' => $project->furnitureScheduleLines()
                 ->where('row_type', FurnitureScheduleLine::ROW_TYPE_PARENT)
@@ -76,8 +76,8 @@ class FurnitureScheduleLineController extends Controller
 
     private function validated(Request $request): array
     {
-        return $request->validate([
-            'item_id' => 'required|exists:items_catalog,id',
+        $data = $request->validate([
+            'item_id' => 'required|exists:items,id',
             'row_type' => 'required|in:parent,sub',
             'parent_line_id' => 'nullable|exists:furniture_schedule_lines,id',
             'fabric_supplier_id' => 'nullable|exists:suppliers,id',
@@ -89,8 +89,16 @@ class FurnitureScheduleLineController extends Controller
             'required_by' => 'nullable|date',
             'delivery_location_id' => 'nullable|exists:delivery_locations,id',
             'include_on_po' => 'boolean',
-            'finish_id' => 'nullable|exists:finishes,id',
+            'colour_id' => 'nullable|exists:colours,id',
             'internal_cost_manual' => 'nullable|numeric|min:0',
         ]);
+
+        // The quantity column is NOT NULL with a default of 1 - drop a blank
+        // value instead of passing an explicit null, so the DB default applies.
+        if (is_null($data['quantity'] ?? null)) {
+            unset($data['quantity']);
+        }
+
+        return $data;
     }
 }

@@ -5,7 +5,7 @@ import Select from '@/Components/Select';
 import InputError from '@/Components/InputError';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Form({ project, line, catalogueItems, suppliers, finishes, deliveryLocations, parentLineOptions }) {
+export default function Form({ project, line, items, suppliers, colours, deliveryLocations, parentLineOptions }) {
     const isNew = !line;
     const title = isNew ? 'Add Schedule Line' : 'Edit Schedule Line';
 
@@ -22,7 +22,7 @@ export default function Form({ project, line, catalogueItems, suppliers, finishe
         required_by: line?.required_by ?? '',
         delivery_location_id: line?.delivery_location_id ?? '',
         include_on_po: line?.include_on_po ?? false,
-        finish_id: line?.finish_id ?? '',
+        colour_id: line?.colour_id ?? '',
         internal_cost_manual: line?.internal_cost_manual ?? '',
     });
 
@@ -41,7 +41,7 @@ export default function Form({ project, line, catalogueItems, suppliers, finishe
                 <form onSubmit={submit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <InputLabel htmlFor="item_id" value="Catalogue Item" />
+                            <InputLabel htmlFor="item_id" value="Item" />
                             <Select
                                 id="item_id"
                                 className="mt-1 block w-full"
@@ -49,7 +49,7 @@ export default function Form({ project, line, catalogueItems, suppliers, finishe
                                 onChange={(e) => setData('item_id', e.target.value)}
                             >
                                 <option value="">— Select —</option>
-                                {catalogueItems.map((i) => (
+                                {items.map((i) => (
                                     <option key={i.id} value={i.id}>
                                         {i.catalogue_no ?? `#${i.id}`}
                                         {i.item_type ? ` — ${i.item_type}` : ''}
@@ -114,21 +114,21 @@ export default function Form({ project, line, catalogueItems, suppliers, finishe
                         </div>
 
                         <div>
-                            <InputLabel htmlFor="finish_id" value="Finish" />
+                            <InputLabel htmlFor="colour_id" value="Colour" />
                             <Select
-                                id="finish_id"
+                                id="colour_id"
                                 className="mt-1 block w-full"
-                                value={data.finish_id}
-                                onChange={(e) => setData('finish_id', e.target.value)}
+                                value={data.colour_id}
+                                onChange={(e) => setData('colour_id', e.target.value)}
                             >
                                 <option value="">— None —</option>
-                                {finishes.map((f) => (
-                                    <option key={f.id} value={f.id}>
-                                        {f.name}
+                                {colours.map((c) => (
+                                    <option key={c.id} value={c.id}>
+                                        {c.name}
                                     </option>
                                 ))}
                             </Select>
-                            <InputError message={errors.finish_id} className="mt-1" />
+                            <InputError message={errors.colour_id} className="mt-1" />
                         </div>
 
                         <div>

@@ -1,10 +1,12 @@
 <?php
 
-use App\Http\Controllers\CatalogueItemController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ColourController;
+use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\DeliveryLocationController;
-use App\Http\Controllers\FinishController;
 use App\Http\Controllers\FurnitureScheduleLineController;
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PurchaseOrderController;
@@ -58,9 +60,11 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('clients', ClientController::class)->except('show');
     Route::resource('suppliers', SupplierController::class)->except('show');
-    Route::resource('finishes', FinishController::class)->except('show');
     Route::resource('delivery-locations', DeliveryLocationController::class)->except('show');
-    Route::resource('catalogue-items', CatalogueItemController::class)->except('show');
+    Route::resource('items', ItemController::class)->except('show');
+    Route::resource('items.components', ComponentController::class)->except('show');
+    Route::resource('items.components.materials', MaterialController::class)->except('show');
+    Route::resource('items.components.materials.colours', ColourController::class)->except('show');
     Route::resource('projects', ProjectController::class)->except('show');
     Route::resource('projects.schedule-lines', FurnitureScheduleLineController::class)->except('show');
     Route::resource('projects.purchase-orders', PurchaseOrderController::class)->except('show');

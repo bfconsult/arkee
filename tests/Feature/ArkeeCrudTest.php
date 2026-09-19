@@ -1,10 +1,12 @@
 <?php
 
-use App\Models\CatalogueItem;
 use App\Models\Client;
+use App\Models\Colour;
+use App\Models\Component;
 use App\Models\DeliveryLocation;
-use App\Models\Finish;
 use App\Models\FurnitureScheduleLine;
+use App\Models\Item;
+use App\Models\Material;
 use App\Models\Project;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
@@ -51,23 +53,6 @@ test('a supplier can be created, updated, and deleted', function () {
     expect(Supplier::count())->toBe(0);
 });
 
-test('a finish can be created, updated, and deleted', function () {
-    $this->actingAs($this->user)
-        ->post(route('finishes.store'), ['name' => 'Walnut Stain', 'type' => 'timber_stain'])
-        ->assertRedirect(route('finishes.index'));
-
-    $finish = Finish::sole();
-
-    $this->actingAs($this->user)
-        ->put(route('finishes.update', $finish), ['name' => 'Walnut Stain', 'type' => 'fabric'])
-        ->assertRedirect(route('finishes.index'));
-    expect($finish->fresh()->type)->toBe('fabric');
-
-    $this->actingAs($this->user)
-        ->delete(route('finishes.destroy', $finish))
-        ->assertRedirect(route('finishes.index'));
-    expect(Finish::count())->toBe(0);
-});
 
 test('a delivery location can be created, updated, and deleted', function () {
     $this->actingAs($this->user)
@@ -87,36 +72,102 @@ test('a delivery location can be created, updated, and deleted', function () {
     expect(DeliveryLocation::count())->toBe(0);
 });
 
-test('a catalogue item can be created as a parent, updated to reference a sub, and deleted', function () {
+test('an item can be created, updated, and deleted', function () {
+    $this->actingAs($this->user)
+        ->post(route('items.store'), ['catalogue_no' => 'CAT-001', 'item_type' => 'Sofa'])
+        ->assertRedirect();
+
+    $item = Item::sole();
+    expect($item->catalogue_no)->toBe('CAT-001');
+
+    $this->actingAs($this->user)
+        ->put(route('items.update', $item), ['catalogue_no' => 'CAT-001', 'item_type' => 'Armchair'])
+        ->assertRedirect(route('items.index'));
+    expect($item->fresh()->item_type)->toBe('Armchair');
+
+    $this->actingAs($this->user)
+        ->delete(route('items.destroy', $item))
+        ->assertRedirect(route('items.index'));
+    expect(Item::count())->toBe(0);
+});
+
+test('a component can be created, updated, and deleted within an item', function () {
+    $item = Item::factory()->create();
+
+    $this->actingAs($this->user)
+        ->post(route('items.components.store', $item), ['name' => 'Frame', 'quantity' => 1])
+        ->assertRedirect();
+
+    $component = Component::sole();
+    expect($component->item_id)->toBe($item->id);
+
+    $this->actingAs($this->user)
+        ->put(route('items.components.update', [$item, $component]), ['name' => 'Frame', 'quantity' => 2])
+        ->assertRedirect(route('items.components.index', $item));
+    expect($component->fresh()->quantity)->toBe(2);
+
+    $this->actingAs($this->user)
+        ->delete(route('items.components.destroy', [$item, $component]))
+        ->assertRedirect(route('items.components.index', $item));
+    expect(Component::count())->toBe(0);
+});
+
+test('a material can be created, updated, and deleted within a component', function () {
+    $item = Item::factory()->create();
+    $component = Component::factory()->for($item)->create();
     $supplier = Supplier::factory()->create();
 
     $this->actingAs($this->user)
-        ->post(route('catalogue-items.store'), [
-            'catalogue_no' => 'CI-001',
-            'row_type' => 'parent',
+        ->post(route('items.components.materials.store', [$item, $component]), [
+            'name' => 'Linen Fabric',
             'supplier_id' => $supplier->id,
         ])
-        ->assertRedirect(route('catalogue-items.index'));
+        ->assertRedirect();
 
-    $parent = CatalogueItem::sole();
-    expect($parent->row_type)->toBe('parent');
-
-    $sub = CatalogueItem::factory()->for($supplier)->create(['row_type' => 'sub', 'catalogue_no' => 'CI-002']);
+    $material = Material::sole();
+    expect($material->component_id)->toBe($component->id);
 
     $this->actingAs($this->user)
-        ->put(route('catalogue-items.update', $sub), [
-            'catalogue_no' => 'CI-002',
-            'row_type' => 'sub',
+        ->put(route('items.components.materials.update', [$item, $component, $material]), [
+            'name' => 'Linen Fabric',
             'supplier_id' => $supplier->id,
-            'parent_item_id' => $parent->id,
+            'unit_cost' => 42.50,
         ])
-        ->assertRedirect(route('catalogue-items.index'));
-    expect($sub->fresh()->parent_item_id)->toBe($parent->id);
+        ->assertRedirect(route('items.components.materials.index', [$item, $component]));
+    expect((float) $material->fresh()->unit_cost)->toBe(42.50);
 
     $this->actingAs($this->user)
-        ->delete(route('catalogue-items.destroy', $sub))
-        ->assertRedirect(route('catalogue-items.index'));
-    expect(CatalogueItem::count())->toBe(1);
+        ->delete(route('items.components.materials.destroy', [$item, $component, $material]))
+        ->assertRedirect(route('items.components.materials.index', [$item, $component]));
+    expect(Material::count())->toBe(0);
+});
+
+test('a colour can be created, updated, and deleted within a material', function () {
+    $item = Item::factory()->create();
+    $component = Component::factory()->for($item)->create();
+    $material = Material::factory()->for($component)->create();
+
+    $this->actingAs($this->user)
+        ->post(route('items.components.materials.colours.store', [$item, $component, $material]), [
+            'name' => 'Natural Oak',
+        ])
+        ->assertRedirect();
+
+    $colour = Colour::sole();
+    expect($colour->material_id)->toBe($material->id);
+
+    $this->actingAs($this->user)
+        ->put(route('items.components.materials.colours.update', [$item, $component, $material, $colour]), [
+            'name' => 'Natural Oak',
+            'code_supplier' => 'COL-9',
+        ])
+        ->assertRedirect(route('items.components.materials.colours.index', [$item, $component, $material]));
+    expect($colour->fresh()->code_supplier)->toBe('COL-9');
+
+    $this->actingAs($this->user)
+        ->delete(route('items.components.materials.colours.destroy', [$item, $component, $material, $colour]))
+        ->assertRedirect(route('items.components.materials.colours.index', [$item, $component, $material]));
+    expect(Colour::count())->toBe(0);
 });
 
 test('a project can be created, updated, and deleted', function () {
@@ -151,7 +202,7 @@ test('a project can be created, updated, and deleted', function () {
 
 test('a furniture schedule line can be created, updated, and deleted within a project', function () {
     $project = Project::factory()->create();
-    $item = CatalogueItem::factory()->create();
+    $item = Item::factory()->create();
 
     $this->actingAs($this->user)
         ->post(route('projects.schedule-lines.store', $project), [
@@ -178,6 +229,20 @@ test('a furniture schedule line can be created, updated, and deleted within a pr
         ->delete(route('projects.schedule-lines.destroy', [$project, $line]))
         ->assertRedirect(route('projects.schedule-lines.index', $project));
     expect(FurnitureScheduleLine::count())->toBe(0);
+});
+
+test('a schedule line with no quantity given falls back to the column default instead of erroring', function () {
+    $project = Project::factory()->create();
+    $item = Item::factory()->create();
+
+    $this->actingAs($this->user)
+        ->post(route('projects.schedule-lines.store', $project), [
+            'item_id' => $item->id,
+            'row_type' => 'parent',
+        ])
+        ->assertRedirect(route('projects.schedule-lines.index', $project));
+
+    expect(FurnitureScheduleLine::sole()->quantity)->toBe(1);
 });
 
 test('a purchase order can be created, updated, and deleted within a project', function () {

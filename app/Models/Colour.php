@@ -5,26 +5,29 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Finish extends Model
+class Colour extends Model
 {
     use HasFactory;
 
-    const TYPE_TIMBER_STAIN = 'timber_stain';
-    const TYPE_FABRIC = 'fabric';
-    const TYPE_OTHER = 'other';
-
     protected $fillable = [
+        'material_id',
         'name',
-        'type',
+        'code_supplier',
+        'notes',
     ];
 
-    public function catalogueItems()
+    public function material()
     {
-        return $this->hasMany(CatalogueItem::class);
+        return $this->belongsTo(Material::class);
     }
 
     public function scheduleLines()
     {
         return $this->hasMany(FurnitureScheduleLine::class);
+    }
+
+    public function attachments()
+    {
+        return $this->morphMany(Attachment::class, 'entity', 'entity_type', 'entity_id');
     }
 }
