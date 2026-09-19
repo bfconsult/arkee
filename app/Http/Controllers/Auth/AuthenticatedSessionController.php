@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\Invitation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,12 +32,6 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
-
-        // Needed now that accepting an invite while logged out can send an
-        // already-existing account to log in rather than register (see
-        // InvitationController::process) - this is what actually finishes
-        // that invitation once they're signed in.
-        Invitation::completePendingFor($request->user());
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

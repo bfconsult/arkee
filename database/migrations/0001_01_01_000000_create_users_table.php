@@ -15,21 +15,18 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('avatar')->nullable();
-            // Nullable: a team member can be added directly by an admin/
-            // manager (no email yet) before they're invited to claim the
-            // account - see Invitation/InvitationController::storeMember().
-            $table->string('email')->unique()->nullable();
+            $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            // Null until this person has actually set their own password and
-            // logged in - distinguishes a "shell" record added purely to
-            // track from a real, self-serve account. See User::isClaimed().
-            $table->timestamp('claimed_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->boolean('deleted')->default(false);
             // Captured automatically from the browser - see
             // CaptureUserTimezone middleware.
             $table->string('timezone')->nullable();
+            $table->enum('role', ['pm', 'admin', 'read_only'])->default('pm');
+            // Admin-controlled access toggle - separate from `deleted`
+            // (the user's own account-closure flag from Profile settings).
+            $table->boolean('active')->default(true);
             $table->timestamps();
         });
 

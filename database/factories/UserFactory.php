@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -27,11 +28,10 @@ class UserFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
-            // A factory-made user represents someone who's already signed
-            // up, unless a test explicitly opts into ->unclaimed().
-            'claimed_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'role' => User::ROLE_PM,
+            'active' => true,
         ];
     }
 
@@ -42,19 +42,6 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
-        ]);
-    }
-
-    /**
-     * A "shell" team member added directly (no invite yet, no email
-     * required) - hasn't set their own password, can't log in.
-     */
-    public function unclaimed(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email' => null,
-            'email_verified_at' => null,
-            'claimed_at' => null,
         ]);
     }
 }

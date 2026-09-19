@@ -8,12 +8,17 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
-use App\Models\Role;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
+
+    const ROLE_PM = 'pm';
+    const ROLE_ADMIN = 'admin';
+    const ROLE_READ_ONLY = 'read_only';
+
+    const ROLES = [self::ROLE_PM, self::ROLE_ADMIN, self::ROLE_READ_ONLY];
 
     /**
      * The attributes that are mass assignable.
@@ -25,10 +30,10 @@ class User extends Authenticatable
         'email',
         'password',
         'deleted',
-        'current_project_id',
         'timezone',
-        'claimed_at',
         'avatar',
+        'role',
+        'active',
     ];
 
     /**
@@ -56,9 +61,9 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'claimed_at' => 'datetime',
             'password' => 'hashed',
             'deleted' => 'boolean',
+            'active' => 'boolean',
         ];
     }
 
@@ -77,31 +82,9 @@ class User extends Authenticatable
             : $disk->url($this->avatar);
     }
 
-    public function roles()
-    {
-        return $this->hasMany(Role::class);
-    }
-
-    public function projects()
-    {
-        return $this->belongsToMany(Project::class, 'roles')->withPivot('type')->withTimestamps();
-    }
-
     /**
-     * Projects this user has ever created - approximated as "projects
-     * they currently hold the admin role on", since ProjectController::store()
-     * makes the creator an admin immediately and there's no dedicated
-     * creator column on projects. Not exact if admin access is later
-     * granted to/revoked from someone else.
-     */
-    public function adminProjects()
-    {
-        return $this->belongsToMany(Project::class, 'roles')->wherePivot('type', Role::ADMIN);
-    }
-
-    /**
-     * The timezone to render this user's times in server-side (PDF/Excel
-     * exports, emails) - captured automatically from their browser via
+     * The timezone to render this user's times in server-side (exports,
+     * emails) - captured automatically from their browser via
      * CaptureUserTimezone. Falls back to the app's UTC default for a user
      * who hasn't loaded an authenticated page since that middleware shipped.
      */
@@ -111,44 +94,18 @@ class User extends Authenticatable
     }
 
     /**
-     * Whether this user has ever set their own password and logged in -
-     * false for a "shell" record a manager/admin added directly (just to
-     * log time against) that hasn't been invited/claimed yet.
+     * Projects this user is the PM on.
      */
-    public function isClaimed(): bool
+    public function projectsAsPm()
     {
-        return $this->claimed_at !== null;
+        return $this->hasMany(Project::class, 'pm_user_id');
     }
 
     /**
-     * Users it's actually possible to email - excludes shell records with
-     * no email on file and anyone who was added but never claimed their
-     * account, for anything that emails users in bulk (digests, reminders).
+     * Purchase orders assigned to this user.
      */
-    public function scopeContactable($query)
+    public function assignedPurchaseOrders()
     {
-        return $query->whereNotNull('email')->whereNotNull('claimed_at');
-    }
-
-    public function roleOn(Project $project): ?string
-    {
-        return $this->roles()
-            ->where('project_id', $project->id)
-            ->value('type');
-    }
-
-    public function isAdminOn(Project $project): bool
-    {
-        return $this->roleOn($project) === Role::ADMIN;
-    }
-
-    public function isManagerOn(Project $project): bool
-    {
-        return in_array($this->roleOn($project), [Role::ADMIN, Role::MANAGER]);
-    }
-
-    public function isWorkerOn(Project $project): bool
-    {
-        return in_array($this->roleOn($project), [Role::ADMIN, Role::MANAGER, Role::WORKER]);
+        return $this->hasMany(PurchaseOrder::class, 'assignee_user_id');
     }
 }

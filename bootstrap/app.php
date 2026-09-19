@@ -23,9 +23,6 @@ return Application::configure(basePath: dirname(__DIR__))
         // response, so it isn't in Laravel's encrypted cookie format -
         // without this it would silently decrypt to null on every request.
         $middleware->encryptCookies(except: ['timezone']);
-        $middleware->alias([
-            'project.role' => \App\Http\Middleware\EnsureProjectRole::class,
-        ]);
         $middleware->throttleApi();
     })
     ->withExceptions(function (Exceptions $exceptions) {
