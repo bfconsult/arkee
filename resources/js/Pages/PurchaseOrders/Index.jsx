@@ -14,7 +14,7 @@ export default function Index({ project, purchaseOrders }) {
         <AuthenticatedLayout title={`Purchase Orders — ${project.project_descriptor ?? project.quote_number ?? 'Project'}`}>
             <Head title="Purchase Orders" />
 
-            <Link href={route('projects.edit', project.id)} className="text-sm text-green-700 hover:underline">
+            <Link href={route('projects.show', project.id)} className="text-sm text-green-700 hover:underline">
                 ← Back to Project
             </Link>
 

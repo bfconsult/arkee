@@ -7,7 +7,7 @@ export default function Index({ material, finishes }) {
         <AuthenticatedLayout title={`Finishes — ${material.name}`}>
             <Head title="Finishes" />
 
-            <Link href={route('materials.edit', material.id)} className="text-sm text-green-700 hover:underline">
+            <Link href={route('materials.show', material.id)} className="text-sm text-green-700 hover:underline">
                 ← Back to Material
             </Link>
 

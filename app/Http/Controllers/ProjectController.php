@@ -17,6 +17,20 @@ class ProjectController extends Controller
         ]);
     }
 
+    public function show(Project $project)
+    {
+        $project->load([
+            'client',
+            'pmUser',
+            'furnitureScheduleLines.item',
+            'purchaseOrders.supplier',
+        ]);
+
+        return Inertia::render('Projects/Show', [
+            'project' => $project,
+        ]);
+    }
+
     public function create()
     {
         return Inertia::render('Projects/Form', [

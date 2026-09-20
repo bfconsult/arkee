@@ -71,7 +71,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('items', ItemController::class);
     Route::resource('items.components', ComponentController::class)->except('show');
     Route::get('quotes', [QuoteController::class, 'index'])->name('quotes.index');
-    Route::resource('projects', ProjectController::class)->except('show');
+    Route::resource('projects', ProjectController::class);
     Route::resource('projects.schedule-lines', FurnitureScheduleLineController::class)->except('show');
     Route::resource('projects.purchase-orders', PurchaseOrderController::class)->except('show');
 

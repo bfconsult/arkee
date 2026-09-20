@@ -7,7 +7,7 @@ export default function Index({ project, lines }) {
         <AuthenticatedLayout title={`Furniture Schedule — ${project.project_descriptor ?? project.quote_number ?? 'Project'}`}>
             <Head title="Furniture Schedule" />
 
-            <Link href={route('projects.edit', project.id)} className="text-sm text-green-700 hover:underline">
+            <Link href={route('projects.show', project.id)} className="text-sm text-green-700 hover:underline">
                 ← Back to Project
             </Link>
 

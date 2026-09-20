@@ -409,6 +409,24 @@ test('a project can be created, updated, and deleted', function () {
     expect(Project::count())->toBe(0);
 });
 
+test("a project's show page lists its furniture schedule lines and purchase orders", function () {
+    $project = Project::factory()->create(['project_descriptor' => 'Lakeside Fitout']);
+    $item = Item::factory()->create();
+    $supplier = Supplier::factory()->create();
+    $line = FurnitureScheduleLine::factory()->for($project)->for($item)->create();
+    $po = PurchaseOrder::factory()->for($project)->for($supplier)->create();
+
+    $this->actingAs($this->user)
+        ->get(route('projects.show', $project))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Projects/Show')
+            ->where('project.id', $project->id)
+            ->where('project.furniture_schedule_lines.0.id', $line->id)
+            ->where('project.purchase_orders.0.id', $po->id)
+        );
+});
+
 test('a furniture schedule line can be created, updated, and deleted within a project', function () {
     $project = Project::factory()->create();
     $item = Item::factory()->create();

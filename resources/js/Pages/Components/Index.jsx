@@ -7,7 +7,7 @@ export default function Index({ item, components }) {
         <AuthenticatedLayout title={`Components — ${item.catalogue_no ?? 'Item'}`}>
             <Head title="Components" />
 
-            <Link href={route('items.edit', item.id)} className="text-sm text-green-700 hover:underline">
+            <Link href={route('items.show', item.id)} className="text-sm text-green-700 hover:underline">
                 ← Back to Item
             </Link>
 

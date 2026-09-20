@@ -18,6 +18,7 @@ export default function Index({ projects }) {
                 rows={projects}
                 addRoute="projects.create"
                 addLabel="Add Project"
+                viewRoute="projects.show"
                 editRoute="projects.edit"
                 destroyRoute="projects.destroy"
                 emptyMessage="No projects yet."
