@@ -110,6 +110,28 @@ test('an item can be created, updated, and deleted', function () {
     expect(Item::count())->toBe(0);
 });
 
+test("an item's show page brings together its components, materials, finishes, and schedule line usage", function () {
+    $item = Item::factory()->create();
+    $material = Material::factory()->create();
+    $finish = Finish::factory()->for($material)->create();
+    Component::factory()->for($item)->for($material)->create(['name' => 'Frame']);
+
+    $project = Project::factory()->create();
+    FurnitureScheduleLine::factory()->for($project)->for($item)->for($finish)->create();
+
+    $this->actingAs($this->user)
+        ->get(route('items.show', $item))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Items/Show')
+            ->where('item.id', $item->id)
+            ->where('item.components.0.name', 'Frame')
+            ->where('item.components.0.material.id', $material->id)
+            ->where('item.components.0.material.finishes.0.id', $finish->id)
+            ->where('item.schedule_lines.0.project.id', $project->id)
+        );
+});
+
 test('a material can be created, updated, and deleted (a shared, top-level catalogue entry)', function () {
     $supplier = Supplier::factory()->create();
 

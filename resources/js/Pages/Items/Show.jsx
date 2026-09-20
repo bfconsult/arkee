@@ -1,0 +1,173 @@
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Head, Link } from '@inertiajs/react';
+
+function field(label, value) {
+    return (
+        <div>
+            <div className="text-xs uppercase text-gray-500">{label}</div>
+            <div className="text-gray-900">{value ?? '—'}</div>
+        </div>
+    );
+}
+
+export default function Show({ item }) {
+    const title = item.catalogue_no ?? item.item_type ?? 'Item';
+    const dimensions =
+        item.height_mm || item.width_mm || item.depth_mm
+            ? `${item.height_mm ?? '—'} x ${item.width_mm ?? '—'} x ${item.depth_mm ?? '—'} mm`
+            : '—';
+
+    return (
+        <AuthenticatedLayout title={title}>
+            <Head title={title} />
+
+            <div className="flex justify-between items-start mb-4">
+                <Link href={route('items.index')} className="text-sm text-green-700 hover:underline">
+                    ← Back to Items
+                </Link>
+                <Link
+                    href={route('items.edit', item.id)}
+                    className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700"
+                >
+                    Edit Item
+                </Link>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6 mb-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">{title}</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {field('Catalogue No.', item.catalogue_no)}
+                    {field('Item Type', item.item_type)}
+                    {field('Packaging Type', item.packaging_type?.name)}
+                    {field('Dimensions (H x W x D)', dimensions)}
+                </div>
+                {item.notes && (
+                    <div className="mt-4">
+                        <div className="text-xs uppercase text-gray-500">Notes</div>
+                        <div className="text-gray-900 whitespace-pre-wrap">{item.notes}</div>
+                    </div>
+                )}
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6 mb-6">
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900">Components</h2>
+                    <Link
+                        href={route('items.components.create', item.id)}
+                        className="px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700"
+                    >
+                        Add Component
+                    </Link>
+                </div>
+
+                {item.components.length === 0 ? (
+                    <p className="text-gray-500 text-sm">No components yet.</p>
+                ) : (
+                    <div className="divide-y divide-gray-100">
+                        {item.components.map((component) => {
+                            const material = component.material;
+                            const supplier = component.supplier ?? material?.supplier;
+                            const unitCost = component.unit_cost ?? material?.unit_cost;
+                            const codeSupplier = component.code_supplier ?? material?.code_supplier;
+                            const meterage = component.meterage ?? material?.meterage;
+                            const sourcedOnComponent = component.supplier_id != null || component.unit_cost != null;
+
+                            return (
+                                <div key={component.id} className="py-4 first:pt-0 last:pb-0">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <div className="font-medium text-gray-900">
+                                                {component.name}
+                                                {component.quantity != null && (
+                                                    <span className="text-gray-500 font-normal"> × {component.quantity}</span>
+                                                )}
+                                            </div>
+                                            {material && (
+                                                <Link
+                                                    href={route('materials.edit', material.id)}
+                                                    className="text-sm text-green-700 hover:underline"
+                                                >
+                                                    {material.name}
+                                                </Link>
+                                            )}
+                                        </div>
+                                        <Link
+                                            href={route('items.components.edit', [item.id, component.id])}
+                                            className="text-sm text-green-700 hover:text-green-900"
+                                        >
+                                            Edit
+                                        </Link>
+                                    </div>
+
+                                    <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                                        {field('Supplier', supplier?.name)}
+                                        {field('Supplier Code', codeSupplier)}
+                                        {field('Unit Cost', unitCost != null ? `$${unitCost}` : null)}
+                                        {field('Meterage', meterage)}
+                                    </div>
+                                    {sourcedOnComponent && (
+                                        <p className="mt-1 text-xs text-gray-400">Sourced on this Component, not the Material.</p>
+                                    )}
+
+                                    {material?.finishes?.length > 0 && (
+                                        <div className="mt-3">
+                                            <div className="text-xs uppercase text-gray-500 mb-1">Finishes</div>
+                                            <div className="flex flex-wrap gap-2">
+                                                {material.finishes.map((finish) => (
+                                                    <span
+                                                        key={finish.id}
+                                                        className="inline-block px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700"
+                                                    >
+                                                        {finish.name}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Used On</h2>
+
+                {item.schedule_lines.length === 0 ? (
+                    <p className="text-gray-500 text-sm">Not used on any project yet.</p>
+                ) : (
+                    <table className="w-full text-sm">
+                        <thead>
+                            <tr className="border-b border-gray-200 text-left text-xs uppercase text-gray-500">
+                                <th className="px-2 py-2 font-medium">Project</th>
+                                <th className="px-2 py-2 font-medium">Type</th>
+                                <th className="px-2 py-2 font-medium">Qty</th>
+                                <th className="px-2 py-2 font-medium">Finish</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {item.schedule_lines.map((line) => (
+                                <tr key={line.id}>
+                                    <td className="px-2 py-2">
+                                        <Link
+                                            href={route('projects.schedule-lines.index', line.project_id)}
+                                            className="text-green-700 hover:underline"
+                                        >
+                                            {line.project?.project_descriptor ?? line.project?.quote_number ?? `Project #${line.project_id}`}
+                                        </Link>
+                                    </td>
+                                    <td className="px-2 py-2 text-gray-900">
+                                        {line.row_type === 'parent' ? 'Parent' : 'Sub'}
+                                    </td>
+                                    <td className="px-2 py-2 text-gray-900">{line.quantity}</td>
+                                    <td className="px-2 py-2 text-gray-900">{line.finish?.name ?? '—'}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+            </div>
+        </AuthenticatedLayout>
+    );
+}

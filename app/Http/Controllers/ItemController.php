@@ -16,6 +16,22 @@ class ItemController extends Controller
         ]);
     }
 
+    public function show(Item $item)
+    {
+        $item->load([
+            'packagingType',
+            'components.material.finishes',
+            'components.material.supplier',
+            'components.supplier',
+            'scheduleLines.project',
+            'scheduleLines.finish',
+        ]);
+
+        return Inertia::render('Items/Show', [
+            'item' => $item,
+        ]);
+    }
+
     public function create()
     {
         return Inertia::render('Items/Form', [

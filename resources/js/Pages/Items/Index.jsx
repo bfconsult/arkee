@@ -11,6 +11,7 @@ export default function Index({ items }) {
                 rows={items}
                 addRoute="items.create"
                 addLabel="Add Item"
+                viewRoute="items.show"
                 editRoute="items.edit"
                 destroyRoute="items.destroy"
                 emptyMessage="No items yet."

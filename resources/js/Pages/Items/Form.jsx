@@ -124,7 +124,13 @@ export default function Form({ item, packagingTypes }) {
                     </div>
 
                     {!isNew && (
-                        <div className="border-t pt-4">
+                        <div className="border-t pt-4 flex gap-4">
+                            <Link
+                                href={route('items.show', item.id)}
+                                className="px-4 py-2 text-sm bg-gray-100 rounded-md hover:bg-gray-200"
+                            >
+                                View Full Item →
+                            </Link>
                             <Link
                                 href={route('items.components.index', item.id)}
                                 className="px-4 py-2 text-sm bg-gray-100 rounded-md hover:bg-gray-200"
