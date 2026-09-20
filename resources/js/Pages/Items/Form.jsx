@@ -5,7 +5,7 @@ import Select from '@/Components/Select';
 import InputError from '@/Components/InputError';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Form({ item, packagingTypes }) {
+export default function Form({ item, packagingTypes, suppliers }) {
     const isNew = !item;
     const title = isNew ? 'Add Item' : `Edit ${item.catalogue_no ?? 'Item'}`;
 
@@ -16,6 +16,7 @@ export default function Form({ item, packagingTypes }) {
         width_mm: item?.width_mm ?? '',
         depth_mm: item?.depth_mm ?? '',
         packaging_type_id: item?.packaging_type_id ?? '',
+        supplier_id: item?.supplier_id ?? '',
         notes: item?.notes ?? '',
     });
 
@@ -93,22 +94,42 @@ export default function Form({ item, packagingTypes }) {
                         </div>
                     </div>
 
-                    <div>
-                        <InputLabel htmlFor="packaging_type_id" value="Packaging Type" />
-                        <Select
-                            id="packaging_type_id"
-                            className="mt-1 block w-full"
-                            value={data.packaging_type_id}
-                            onChange={(e) => setData('packaging_type_id', e.target.value)}
-                        >
-                            <option value="">— None —</option>
-                            {packagingTypes.map((p) => (
-                                <option key={p.id} value={p.id}>
-                                    {p.name}
-                                </option>
-                            ))}
-                        </Select>
-                        <InputError message={errors.packaging_type_id} className="mt-1" />
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <InputLabel htmlFor="packaging_type_id" value="Packaging Type" />
+                            <Select
+                                id="packaging_type_id"
+                                className="mt-1 block w-full"
+                                value={data.packaging_type_id}
+                                onChange={(e) => setData('packaging_type_id', e.target.value)}
+                            >
+                                <option value="">— None —</option>
+                                {packagingTypes.map((p) => (
+                                    <option key={p.id} value={p.id}>
+                                        {p.name}
+                                    </option>
+                                ))}
+                            </Select>
+                            <InputError message={errors.packaging_type_id} className="mt-1" />
+                        </div>
+
+                        <div>
+                            <InputLabel htmlFor="supplier_id" value="Supplier" />
+                            <Select
+                                id="supplier_id"
+                                className="mt-1 block w-full"
+                                value={data.supplier_id}
+                                onChange={(e) => setData('supplier_id', e.target.value)}
+                            >
+                                <option value="">— None —</option>
+                                {suppliers.map((s) => (
+                                    <option key={s.id} value={s.id}>
+                                        {s.name}
+                                    </option>
+                                ))}
+                            </Select>
+                            <InputError message={errors.supplier_id} className="mt-1" />
+                        </div>
                     </div>
 
                     <div>

@@ -41,7 +41,10 @@ class DatabaseSeeder extends Seeder
 
         Item::factory()
             ->count(12)
-            ->create(['packaging_type_id' => fn () => $packagingTypes->random()->id])
+            ->create([
+                'packaging_type_id' => fn () => $packagingTypes->random()->id,
+                'supplier_id' => fn () => $suppliers->random()->id,
+            ])
             ->each(function (Item $item) use ($materials) {
                 Component::factory()
                     ->count(rand(1, 3))

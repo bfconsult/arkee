@@ -92,12 +92,15 @@ test('a packaging type can be created, updated, and deleted', function () {
 });
 
 test('an item can be created, updated, and deleted', function () {
+    $supplier = Supplier::factory()->create();
+
     $this->actingAs($this->user)
-        ->post(route('items.store'), ['catalogue_no' => 'CAT-001', 'item_type' => 'Sofa'])
+        ->post(route('items.store'), ['catalogue_no' => 'CAT-001', 'item_type' => 'Sofa', 'supplier_id' => $supplier->id])
         ->assertRedirect();
 
     $item = Item::sole();
     expect($item->catalogue_no)->toBe('CAT-001');
+    expect($item->supplier_id)->toBe($supplier->id);
 
     $this->actingAs($this->user)
         ->put(route('items.update', $item), ['catalogue_no' => 'CAT-001', 'item_type' => 'Armchair'])
@@ -130,6 +133,20 @@ test("an item's show page brings together its components, materials, finishes, a
             ->where('item.components.0.material.finishes.0.id', $finish->id)
             ->where('item.schedule_lines.0.project.id', $project->id)
         );
+});
+
+test("an item's supplier is a default that a component's own supplier overrides", function () {
+    $itemSupplier = Supplier::factory()->create();
+    $componentSupplier = Supplier::factory()->create();
+    $item = Item::factory()->create(['supplier_id' => $itemSupplier->id]);
+    $material = Material::factory()->create(['supplier_id' => null]);
+
+    $defaultingComponent = Component::factory()->for($item)->for($material)->create(['supplier_id' => null]);
+    $overridingComponent = Component::factory()->for($item)->for($material)->create(['supplier_id' => $componentSupplier->id]);
+
+    expect($item->supplier->is($itemSupplier))->toBeTrue();
+    expect($defaultingComponent->supplier_id)->toBeNull();
+    expect($overridingComponent->supplier->is($componentSupplier))->toBeTrue();
 });
 
 test('a material can be created, updated, and deleted (a shared, top-level catalogue entry)', function () {

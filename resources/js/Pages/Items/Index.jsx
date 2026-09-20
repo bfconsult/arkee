@@ -19,6 +19,11 @@ export default function Index({ items }) {
                     { key: 'catalogue_no', label: 'Catalogue No.' },
                     { key: 'item_type', label: 'Item Type' },
                     {
+                        key: 'supplier',
+                        label: 'Supplier',
+                        render: (row) => row.supplier?.name ?? '—',
+                    },
+                    {
                         key: 'packaging_type',
                         label: 'Packaging',
                         render: (row) => row.packaging_type?.name ?? '—',

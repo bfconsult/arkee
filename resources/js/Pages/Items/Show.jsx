@@ -35,9 +35,10 @@ export default function Show({ item }) {
 
             <div className="bg-white rounded-lg shadow p-6 mb-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">{title}</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                     {field('Catalogue No.', item.catalogue_no)}
                     {field('Item Type', item.item_type)}
+                    {field('Supplier', item.supplier?.name)}
                     {field('Packaging Type', item.packaging_type?.name)}
                     {field('Dimensions (H x W x D)', dimensions)}
                 </div>
@@ -66,11 +67,15 @@ export default function Show({ item }) {
                     <div className="divide-y divide-gray-100">
                         {item.components.map((component) => {
                             const material = component.material;
-                            const supplier = component.supplier ?? material?.supplier;
+                            const supplier = component.supplier ?? material?.supplier ?? item.supplier;
                             const unitCost = component.unit_cost ?? material?.unit_cost;
                             const codeSupplier = component.code_supplier ?? material?.code_supplier;
                             const meterage = component.meterage ?? material?.meterage;
                             const sourcedOnComponent = component.supplier_id != null || component.unit_cost != null;
+                            const supplierDiffersFromItem =
+                                component.supplier_id != null &&
+                                item.supplier_id != null &&
+                                component.supplier_id !== item.supplier_id;
 
                             return (
                                 <div key={component.id} className="py-4 first:pt-0 last:pb-0">
@@ -107,6 +112,11 @@ export default function Show({ item }) {
                                     </div>
                                     {sourcedOnComponent && (
                                         <p className="mt-1 text-xs text-gray-400">Sourced on this Component, not the Material.</p>
+                                    )}
+                                    {supplierDiffersFromItem && (
+                                        <p className="mt-1 text-xs text-amber-600">
+                                            Different supplier to the Item's default ({item.supplier?.name}).
+                                        </p>
                                     )}
 
                                     {material?.finishes?.length > 0 && (

@@ -15,6 +15,9 @@ return new class extends Migration
             $table->unsignedInteger('height_mm')->nullable();
             $table->unsignedInteger('width_mm')->nullable();
             $table->unsignedInteger('depth_mm')->nullable();
+            // The item's own default supplier - a component may override
+            // this with its own supplier when sourced differently.
+            $table->foreignId('supplier_id')->nullable()->constrained()->nullOnDelete();
             $table->text('notes')->nullable();
             $table->timestamps();
         });

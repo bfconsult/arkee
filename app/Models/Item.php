@@ -16,12 +16,18 @@ class Item extends Model
         'width_mm',
         'depth_mm',
         'packaging_type_id',
+        'supplier_id',
         'notes',
     ];
 
     public function packagingType()
     {
         return $this->belongsTo(PackagingType::class);
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
     }
 
     public function components()
