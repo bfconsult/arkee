@@ -14,11 +14,6 @@ class DeliveryLocation extends Model
         'address',
     ];
 
-    public function scheduleLines()
-    {
-        return $this->hasMany(FurnitureScheduleLine::class);
-    }
-
     public function purchaseOrders()
     {
         return $this->hasMany(PurchaseOrder::class);

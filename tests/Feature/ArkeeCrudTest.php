@@ -145,7 +145,7 @@ test("an item's show page brings together its components, materials, finishes, a
     Component::factory()->for($item)->for($material)->create(['name' => 'Frame']);
 
     $project = Project::factory()->create();
-    FurnitureScheduleLine::factory()->for($project)->for($item)->for($finish)->create();
+    FurnitureScheduleLine::factory()->for($project)->for($item)->create();
 
     $this->actingAs($this->user)
         ->get(route('items.show', $item))

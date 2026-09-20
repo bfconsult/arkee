@@ -5,23 +5,18 @@ import Select from '@/Components/Select';
 import InputError from '@/Components/InputError';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Form({ project, line, items, suppliers, finishes, deliveryLocations, parentLineOptions }) {
+export default function Form({ project, line, items }) {
     const isNew = !line;
     const title = isNew ? 'Add Schedule Line' : 'Edit Schedule Line';
 
     const { data, setData, post, put, processing, errors } = useForm({
         item_id: line?.item_id ?? '',
-        parent_line_id: line?.parent_line_id ?? '',
-        fabric_supplier_id: line?.fabric_supplier_id ?? '',
         fabric_notes: line?.fabric_notes ?? '',
         quantity: line?.quantity ?? '',
-        fabric_price_pm: line?.fabric_price_pm ?? '',
         price_override: line?.price_override ?? '',
         markup_target_pct: line?.markup_target_pct ?? '',
         required_by: line?.required_by ?? '',
-        delivery_location_id: line?.delivery_location_id ?? '',
         include_on_po: line?.include_on_po ?? false,
-        finish_id: line?.finish_id ?? '',
         internal_cost_manual: line?.internal_cost_manual ?? '',
     });
 
@@ -38,102 +33,26 @@ export default function Form({ project, line, items, suppliers, finishes, delive
 
             <div className="max-w-2xl bg-white rounded-lg shadow p-6">
                 <form onSubmit={submit} className="space-y-4">
+                    <div>
+                        <InputLabel htmlFor="item_id" value="Item" />
+                        <Select
+                            id="item_id"
+                            className="mt-1 block w-full"
+                            value={data.item_id}
+                            onChange={(e) => setData('item_id', e.target.value)}
+                        >
+                            <option value="">— Select —</option>
+                            {items.map((i) => (
+                                <option key={i.id} value={i.id}>
+                                    {i.catalogue_no ?? `#${i.id}`}
+                                    {i.item_category ? ` — ${i.item_category.name}` : ''}
+                                </option>
+                            ))}
+                        </Select>
+                        <InputError message={errors.item_id} className="mt-1" />
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <InputLabel htmlFor="item_id" value="Item" />
-                            <Select
-                                id="item_id"
-                                className="mt-1 block w-full"
-                                value={data.item_id}
-                                onChange={(e) => setData('item_id', e.target.value)}
-                            >
-                                <option value="">— Select —</option>
-                                {items.map((i) => (
-                                    <option key={i.id} value={i.id}>
-                                        {i.catalogue_no ?? `#${i.id}`}
-                                        {i.item_category ? ` — ${i.item_category.name}` : ''}
-                                    </option>
-                                ))}
-                            </Select>
-                            <InputError message={errors.item_id} className="mt-1" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="parent_line_id" value="Parent Line" />
-                            <Select
-                                id="parent_line_id"
-                                className="mt-1 block w-full"
-                                value={data.parent_line_id}
-                                onChange={(e) => setData('parent_line_id', e.target.value)}
-                            >
-                                <option value="">— None —</option>
-                                {parentLineOptions.map((p) => (
-                                    <option key={p.id} value={p.id}>
-                                        Line #{p.id}
-                                    </option>
-                                ))}
-                            </Select>
-                            <InputError message={errors.parent_line_id} className="mt-1" />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-4">
-                        <div>
-                            <InputLabel htmlFor="fabric_supplier_id" value="Fabric Supplier" />
-                            <Select
-                                id="fabric_supplier_id"
-                                className="mt-1 block w-full"
-                                value={data.fabric_supplier_id}
-                                onChange={(e) => setData('fabric_supplier_id', e.target.value)}
-                            >
-                                <option value="">— None —</option>
-                                {suppliers.map((s) => (
-                                    <option key={s.id} value={s.id}>
-                                        {s.name}
-                                    </option>
-                                ))}
-                            </Select>
-                            <InputError message={errors.fabric_supplier_id} className="mt-1" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="finish_id" value="Finish" />
-                            <Select
-                                id="finish_id"
-                                className="mt-1 block w-full"
-                                value={data.finish_id}
-                                onChange={(e) => setData('finish_id', e.target.value)}
-                            >
-                                <option value="">— None —</option>
-                                {finishes.map((f) => (
-                                    <option key={f.id} value={f.id}>
-                                        {f.name}
-                                    </option>
-                                ))}
-                            </Select>
-                            <InputError message={errors.finish_id} className="mt-1" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="delivery_location_id" value="Delivery Location" />
-                            <Select
-                                id="delivery_location_id"
-                                className="mt-1 block w-full"
-                                value={data.delivery_location_id}
-                                onChange={(e) => setData('delivery_location_id', e.target.value)}
-                            >
-                                <option value="">— None —</option>
-                                {deliveryLocations.map((d) => (
-                                    <option key={d.id} value={d.id}>
-                                        {d.name}
-                                    </option>
-                                ))}
-                            </Select>
-                            <InputError message={errors.delivery_location_id} className="mt-1" />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-4">
                         <div>
                             <InputLabel htmlFor="quantity" value="Quantity" />
                             <TextInput
@@ -144,19 +63,6 @@ export default function Form({ project, line, items, suppliers, finishes, delive
                                 onChange={(e) => setData('quantity', e.target.value)}
                             />
                             <InputError message={errors.quantity} className="mt-1" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="fabric_price_pm" value="Fabric Price / m" />
-                            <TextInput
-                                id="fabric_price_pm"
-                                type="number"
-                                step="0.01"
-                                className="mt-1 block w-full"
-                                value={data.fabric_price_pm}
-                                onChange={(e) => setData('fabric_price_pm', e.target.value)}
-                            />
-                            <InputError message={errors.fabric_price_pm} className="mt-1" />
                         </div>
 
                         <div>

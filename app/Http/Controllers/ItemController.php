@@ -28,7 +28,6 @@ class ItemController extends Controller
             'components.material.supplier',
             'components.supplier',
             'scheduleLines.project',
-            'scheduleLines.finish',
         ]);
 
         return Inertia::render('Items/Show', [

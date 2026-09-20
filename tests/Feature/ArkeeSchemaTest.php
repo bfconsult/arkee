@@ -3,7 +3,6 @@
 use App\Models\Attachment;
 use App\Models\Client;
 use App\Models\Component;
-use App\Models\DeliveryLocation;
 use App\Models\Finish;
 use App\Models\FurnitureScheduleLine;
 use App\Models\Item;
@@ -59,35 +58,17 @@ test('a component can carry its own supplier/cost independently of its material'
     expect((float) $component->unit_cost)->toBe(123.45);
 });
 
-test('a furniture schedule line links a project, item, and optional delivery location', function () {
+test('a furniture schedule line links a project and an item', function () {
     $project = Project::factory()->create();
     $item = Item::factory()->create();
-    $location = DeliveryLocation::factory()->create();
 
     $line = FurnitureScheduleLine::factory()
         ->for($project)
         ->for($item)
-        ->for($location)
         ->create();
 
     expect($project->furnitureScheduleLines->first()->is($line))->toBeTrue();
     expect($line->item->is($item))->toBeTrue();
-    expect($line->deliveryLocation->is($location))->toBeTrue();
-});
-
-test('furniture schedule lines self-reference for parent/sub rows, and can pick a finish', function () {
-    $project = Project::factory()->create();
-    $material = Material::factory()->create();
-    $finish = Finish::factory()->for($material)->create();
-
-    $parentLine = FurnitureScheduleLine::factory()->for($project)->create();
-    $subLine = FurnitureScheduleLine::factory()->for($project)->for($finish)->create([
-        'parent_line_id' => $parentLine->id,
-    ]);
-
-    expect($parentLine->subLines->first()->is($subLine))->toBeTrue();
-    expect($subLine->parentLine->is($parentLine))->toBeTrue();
-    expect($subLine->finish->is($finish))->toBeTrue();
 });
 
 test('a purchase order belongs to a project and supplier, and can include multiple schedule lines', function () {

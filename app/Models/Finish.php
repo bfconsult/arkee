@@ -21,11 +21,6 @@ class Finish extends Model
         return $this->belongsTo(Material::class);
     }
 
-    public function scheduleLines()
-    {
-        return $this->hasMany(FurnitureScheduleLine::class);
-    }
-
     public function attachments()
     {
         return $this->morphMany(Attachment::class, 'entity', 'entity_type', 'entity_id');

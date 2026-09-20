@@ -73,7 +73,6 @@ class DatabaseSeeder extends Seeder
         }
 
         $items = Item::all();
-        $finishes = Finish::all();
 
         Project::factory()
             ->count(5)
@@ -81,14 +80,11 @@ class DatabaseSeeder extends Seeder
                 'client_id' => fn () => $clients->random()->id,
                 'pm_user_id' => fn () => $pmUsers->random()->id,
             ])
-            ->each(function (Project $project) use ($items, $finishes, $suppliers) {
+            ->each(function (Project $project) use ($items, $suppliers) {
                 FurnitureScheduleLine::factory()
                     ->count(rand(3, 6))
                     ->for($project)
-                    ->create([
-                        'item_id' => fn () => $items->random()->id,
-                        'finish_id' => fn () => $finishes->isNotEmpty() ? $finishes->random()->id : null,
-                    ]);
+                    ->create(['item_id' => fn () => $items->random()->id]);
 
                 PurchaseOrder::factory()
                     ->count(rand(1, 3))

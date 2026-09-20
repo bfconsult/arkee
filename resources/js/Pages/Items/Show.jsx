@@ -153,7 +153,6 @@ export default function Show({ item }) {
                             <tr className="border-b border-gray-200 text-left text-xs uppercase text-gray-500">
                                 <th className="px-2 py-2 font-medium">Project</th>
                                 <th className="px-2 py-2 font-medium">Qty</th>
-                                <th className="px-2 py-2 font-medium">Finish</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
@@ -168,7 +167,6 @@ export default function Show({ item }) {
                                         </Link>
                                     </td>
                                     <td className="px-2 py-2 text-gray-900">{line.quantity}</td>
-                                    <td className="px-2 py-2 text-gray-900">{line.finish?.name ?? '—'}</td>
                                 </tr>
                             ))}
                         </tbody>
