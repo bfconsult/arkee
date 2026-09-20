@@ -11,6 +11,7 @@ export default function Index({ materials }) {
                 rows={materials}
                 addRoute="materials.create"
                 addLabel="Add Material"
+                viewRoute="materials.show"
                 editRoute="materials.edit"
                 destroyRoute="materials.destroy"
                 emptyMessage="No materials yet."

@@ -63,7 +63,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('suppliers', SupplierController::class)->except('show');
     Route::resource('delivery-locations', DeliveryLocationController::class)->except('show');
     Route::resource('packaging-types', PackagingTypeController::class)->except('show');
-    Route::resource('materials', MaterialController::class)->except('show');
+    Route::resource('materials', MaterialController::class);
     Route::resource('materials.finishes', FinishController::class)->except('show');
     Route::resource('items', ItemController::class);
     Route::resource('items.components', ComponentController::class)->except('show');

@@ -16,6 +16,19 @@ class MaterialController extends Controller
         ]);
     }
 
+    public function show(Material $material)
+    {
+        $material->load([
+            'supplier',
+            'finishes',
+            'components.item',
+        ]);
+
+        return Inertia::render('Materials/Show', [
+            'material' => $material,
+        ]);
+    }
+
     public function create()
     {
         return Inertia::render('Materials/Form', [

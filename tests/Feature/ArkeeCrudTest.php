@@ -135,6 +135,24 @@ test("an item's show page brings together its components, materials, finishes, a
         );
 });
 
+test("a material's show page lists its finishes and where it's used", function () {
+    $material = Material::factory()->create();
+    $finish = Finish::factory()->for($material)->create();
+    $item = Item::factory()->create();
+    $component = Component::factory()->for($item)->for($material)->create(['name' => 'Frame']);
+
+    $this->actingAs($this->user)
+        ->get(route('materials.show', $material))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Materials/Show')
+            ->where('material.id', $material->id)
+            ->where('material.finishes.0.id', $finish->id)
+            ->where('material.components.0.id', $component->id)
+            ->where('material.components.0.item.id', $item->id)
+        );
+});
+
 test("an item's supplier is a default that a component's own supplier overrides", function () {
     $itemSupplier = Supplier::factory()->create();
     $componentSupplier = Supplier::factory()->create();
