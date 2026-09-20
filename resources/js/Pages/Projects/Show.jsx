@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import NeedsFinishesIcon from '@/Components/NeedsFinishesIcon';
 import { Head, Link } from '@inertiajs/react';
 
 const STATUS_LABELS = {
@@ -80,9 +81,10 @@ export default function Show({ project }) {
                         {project.furniture_schedule_lines.map((line) => (
                             <div key={line.id} className="py-3 first:pt-0 last:pb-0 flex justify-between items-start">
                                 <div>
-                                    <div className="font-medium text-gray-900">
+                                    <div className="font-medium text-gray-900 flex items-center gap-1.5">
                                         {line.item?.catalogue_no ?? `Item #${line.item_id}`}
                                         <span className="text-gray-500 font-normal"> × {line.quantity}</span>
+                                        {line.needs_finishes && <NeedsFinishesIcon />}
                                     </div>
                                     {line.include_on_po && <div className="text-sm text-gray-500">On Purchase Order</div>}
                                 </div>

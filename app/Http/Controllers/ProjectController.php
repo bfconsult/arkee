@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\FurnitureScheduleLine;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -22,9 +23,14 @@ class ProjectController extends Controller
         $project->load([
             'client',
             'pmUser',
-            'furnitureScheduleLines.item',
+            'furnitureScheduleLines.item.components',
+            'furnitureScheduleLines.componentFinishes',
             'purchaseOrders.supplier',
         ]);
+
+        $project->furnitureScheduleLines->each(
+            fn (FurnitureScheduleLine $line) => $line->needs_finishes = $line->needsFinishes()
+        );
 
         return Inertia::render('Projects/Show', [
             'project' => $project,

@@ -50,4 +50,16 @@ class FurnitureScheduleLine extends Model
     {
         return $this->morphMany(Attachment::class, 'entity', 'entity_type', 'entity_id');
     }
+
+    /**
+     * Does every Component on this line's Item still need a Finish chosen
+     * for it? Expects item.components and componentFinishes to already be
+     * eager loaded by the caller - falls back to lazy loading otherwise.
+     */
+    public function needsFinishes(): bool
+    {
+        $chosen = $this->componentFinishes->whereNotNull('finish_id')->count();
+
+        return $this->item->components->count() > $chosen;
+    }
 }

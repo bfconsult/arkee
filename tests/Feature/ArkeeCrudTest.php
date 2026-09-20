@@ -555,6 +555,51 @@ test('a non-fabric component always uses its own fixed Material - only its Finis
     expect($componentFinish->finish_id)->toBe($finish->id);
 });
 
+test('a schedule line is flagged as needing finishes until every one of its item\'s components has one', function () {
+    $project = Project::factory()->create();
+    $item = Item::factory()->create();
+    $material = Material::factory()->create(['is_fabric' => false]);
+    $finish = Finish::factory()->for($material)->create();
+
+    $frame = Component::factory()->for($item)->for($material)->create(['name' => 'Frame']);
+    $legs = Component::factory()->for($item)->for($material)->create(['name' => 'Legs']);
+
+    $line = FurnitureScheduleLine::factory()->for($project)->for($item)->create();
+    $line->componentFinishes()->create([
+        'component_id' => $frame->id,
+        'material_id' => $material->id,
+        'finish_id' => $finish->id,
+    ]);
+    // Legs has no ComponentFinish row at all yet - still incomplete.
+
+    $this->actingAs($this->user)
+        ->get(route('projects.schedule-lines.index', $project))
+        ->assertInertia(fn ($page) => $page
+            ->component('ScheduleLines/Index')
+            ->where('lines.0.needs_finishes', true)
+        );
+
+    $this->actingAs($this->user)
+        ->get(route('projects.show', $project))
+        ->assertInertia(fn ($page) => $page
+            ->component('Projects/Show')
+            ->where('project.furniture_schedule_lines.0.needs_finishes', true)
+        );
+
+    $line->componentFinishes()->create([
+        'component_id' => $legs->id,
+        'material_id' => $material->id,
+        'finish_id' => $finish->id,
+    ]);
+
+    $this->actingAs($this->user)
+        ->get(route('projects.schedule-lines.index', $project))
+        ->assertInertia(fn ($page) => $page
+            ->component('ScheduleLines/Index')
+            ->where('lines.0.needs_finishes', false)
+        );
+});
+
 test('a purchase order can be created, updated, and deleted within a project', function () {
     $project = Project::factory()->create();
     $supplier = Supplier::factory()->create();

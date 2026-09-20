@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import DataTable from '@/Components/DataTable';
+import NeedsFinishesIcon from '@/Components/NeedsFinishesIcon';
 import { Head, Link } from '@inertiajs/react';
 
 export default function Index({ project, lines }) {
@@ -23,7 +24,12 @@ export default function Index({ project, lines }) {
                         {
                             key: 'item',
                             label: 'Item',
-                            render: (row) => row.item?.catalogue_no ?? '—',
+                            render: (row) => (
+                                <span className="inline-flex items-center gap-1.5">
+                                    {row.item?.catalogue_no ?? '—'}
+                                    {row.needs_finishes && <NeedsFinishesIcon />}
+                                </span>
+                            ),
                         },
                         { key: 'quantity', label: 'Qty' },
                         {

@@ -14,9 +14,14 @@ class FurnitureScheduleLineController extends Controller
 {
     public function index(Project $project)
     {
+        $lines = $project->furnitureScheduleLines()
+            ->with(['item.components', 'componentFinishes'])
+            ->get()
+            ->each(fn (FurnitureScheduleLine $line) => $line->needs_finishes = $line->needsFinishes());
+
         return Inertia::render('ScheduleLines/Index', [
             'project' => $project,
-            'lines' => $project->furnitureScheduleLines()->with('item')->get(),
+            'lines' => $lines,
         ]);
     }
 
