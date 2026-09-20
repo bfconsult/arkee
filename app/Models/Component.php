@@ -39,4 +39,9 @@ class Component extends Model
     {
         return $this->belongsTo(Supplier::class);
     }
+
+    public function fabricComponents()
+    {
+        return $this->hasMany(FabricComponent::class);
+    }
 }

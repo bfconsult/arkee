@@ -41,6 +41,11 @@ class FurnitureScheduleLine extends Model
         return $this->belongsToMany(PurchaseOrder::class, 'po_schedule_lines', 'schedule_line_id', 'po_id');
     }
 
+    public function fabricComponents()
+    {
+        return $this->hasMany(FabricComponent::class);
+    }
+
     public function attachments()
     {
         return $this->morphMany(Attachment::class, 'entity', 'entity_type', 'entity_id');

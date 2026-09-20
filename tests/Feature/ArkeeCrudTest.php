@@ -3,6 +3,7 @@
 use App\Models\Client;
 use App\Models\Component;
 use App\Models\DeliveryLocation;
+use App\Models\FabricComponent;
 use App\Models\Finish;
 use App\Models\FurnitureScheduleLine;
 use App\Models\Item;
@@ -444,6 +445,50 @@ test('a schedule line with no quantity given falls back to the column default in
         ->assertRedirect(route('projects.schedule-lines.index', $project));
 
     expect(FurnitureScheduleLine::sole()->quantity)->toBe(1);
+});
+
+test('adding a schedule line for an item with fabric components saves a Material/Finish choice per component', function () {
+    $project = Project::factory()->create();
+    $item = Item::factory()->create();
+    $material = Material::factory()->create();
+    $finish = Finish::factory()->for($material)->create();
+    $otherMaterial = Material::factory()->create();
+
+    $upholstery = Component::factory()->for($item)->fabric()->create(['name' => 'Upholstery']);
+    $cushion = Component::factory()->for($item)->fabric()->create(['name' => 'Cushion']);
+
+    $this->actingAs($this->user)
+        ->post(route('projects.schedule-lines.store', $project), [
+            'item_id' => $item->id,
+            'fabric_components' => [
+                ['component_id' => $upholstery->id, 'material_id' => $material->id, 'finish_id' => $finish->id],
+                ['component_id' => $cushion->id, 'material_id' => '', 'finish_id' => ''],
+            ],
+        ])
+        ->assertRedirect(route('projects.schedule-lines.index', $project));
+
+    $line = FurnitureScheduleLine::sole();
+    expect(FabricComponent::count())->toBe(1);
+
+    $fabricComponent = FabricComponent::sole();
+    expect($fabricComponent->furniture_schedule_line_id)->toBe($line->id);
+    expect($fabricComponent->component_id)->toBe($upholstery->id);
+    expect($fabricComponent->material_id)->toBe($material->id);
+    expect($fabricComponent->finish_id)->toBe($finish->id);
+
+    $this->actingAs($this->user)
+        ->put(route('projects.schedule-lines.update', [$project, $line]), [
+            'item_id' => $item->id,
+            'fabric_components' => [
+                ['component_id' => $upholstery->id, 'material_id' => $otherMaterial->id, 'finish_id' => ''],
+                ['component_id' => $cushion->id, 'material_id' => '', 'finish_id' => ''],
+            ],
+        ])
+        ->assertRedirect(route('projects.schedule-lines.index', $project));
+
+    $fabricComponent = FabricComponent::sole();
+    expect($fabricComponent->material_id)->toBe($otherMaterial->id);
+    expect($fabricComponent->finish_id)->toBeNull();
 });
 
 test('a purchase order can be created, updated, and deleted within a project', function () {
