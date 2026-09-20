@@ -50,9 +50,15 @@ class DatabaseSeeder extends Seeder
             ])
             ->each(function (Item $item) use ($materials) {
                 Component::factory()
-                    ->count(rand(1, 3))
+                    ->count(rand(1, 2))
                     ->for($item)
                     ->create(['material_id' => fn () => $materials->random()->id]);
+
+                // Most furniture items have at least one fabric/upholstery
+                // component whose Material/Finish is picked per Project.
+                if (fake()->boolean(70)) {
+                    Component::factory()->fabric()->for($item)->create();
+                }
             });
 
         $pmUsers = User::all();

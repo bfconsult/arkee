@@ -7,6 +7,7 @@ use App\Models\Item;
 use App\Models\Material;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class ComponentController extends Controller
@@ -68,8 +69,13 @@ class ComponentController extends Controller
 
     private function validated(Request $request): array
     {
-        return $request->validate([
-            'material_id' => 'required|exists:materials,id',
+        $data = $request->validate([
+            'is_fabric' => 'boolean',
+            'material_id' => [
+                Rule::requiredIf(! $request->boolean('is_fabric')),
+                'nullable',
+                'exists:materials,id',
+            ],
             'name' => 'required|string|max:255',
             'quantity' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',
@@ -78,5 +84,13 @@ class ComponentController extends Controller
             'unit_cost' => 'nullable|numeric|min:0',
             'meterage' => 'nullable|numeric|min:0',
         ]);
+
+        // A Fabric component's Material/Finish are chosen later, per
+        // Furniture Schedule Line - never store one fixed on the Item.
+        if ($data['is_fabric'] ?? false) {
+            $data['material_id'] = null;
+        }
+
+        return $data;
     }
 }

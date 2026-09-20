@@ -12,6 +12,7 @@ class Component extends Model
     protected $fillable = [
         'item_id',
         'material_id',
+        'is_fabric',
         'name',
         'quantity',
         'notes',
@@ -19,6 +20,10 @@ class Component extends Model
         'code_supplier',
         'unit_cost',
         'meterage',
+    ];
+
+    protected $casts = [
+        'is_fabric' => 'boolean',
     ];
 
     public function item()

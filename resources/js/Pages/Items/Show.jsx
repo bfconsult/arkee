@@ -87,13 +87,19 @@ export default function Show({ item }) {
                                                     <span className="text-gray-500 font-normal"> × {component.quantity}</span>
                                                 )}
                                             </div>
-                                            {material && (
-                                                <Link
-                                                    href={route('materials.edit', material.id)}
-                                                    className="text-sm text-green-700 hover:underline"
-                                                >
-                                                    {material.name}
-                                                </Link>
+                                            {component.is_fabric ? (
+                                                <span className="inline-block px-2 py-0.5 rounded-full text-xs bg-amber-100 text-amber-800">
+                                                    Fabric — chosen per Project
+                                                </span>
+                                            ) : (
+                                                material && (
+                                                    <Link
+                                                        href={route('materials.edit', material.id)}
+                                                        className="text-sm text-green-700 hover:underline"
+                                                    >
+                                                        {material.name}
+                                                    </Link>
+                                                )
                                             )}
                                         </div>
                                         <Link

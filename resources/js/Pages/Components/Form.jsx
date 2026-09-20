@@ -10,6 +10,7 @@ export default function Form({ item, component, materials, suppliers }) {
     const title = isNew ? 'Add Component' : `Edit ${component.name}`;
 
     const { data, setData, post, put, processing, errors } = useForm({
+        is_fabric: component?.is_fabric ?? false,
         material_id: component?.material_id ?? '',
         name: component?.name ?? '',
         quantity: component?.quantity ?? '',
@@ -45,23 +46,46 @@ export default function Form({ item, component, materials, suppliers }) {
                         <InputError message={errors.name} className="mt-1" />
                     </div>
 
-                    <div>
-                        <InputLabel htmlFor="material_id" value="Material" />
-                        <Select
-                            id="material_id"
-                            className="mt-1 block w-full"
-                            value={data.material_id}
-                            onChange={(e) => setData('material_id', e.target.value)}
-                        >
-                            <option value="">— Select —</option>
-                            {materials.map((m) => (
-                                <option key={m.id} value={m.id}>
-                                    {m.name}
-                                </option>
-                            ))}
-                        </Select>
-                        <InputError message={errors.material_id} className="mt-1" />
+                    <div className="flex items-center gap-2">
+                        <input
+                            id="is_fabric"
+                            type="checkbox"
+                            checked={data.is_fabric}
+                            onChange={(e) => {
+                                setData('is_fabric', e.target.checked);
+                                if (e.target.checked) {
+                                    setData('material_id', '');
+                                }
+                            }}
+                            className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                        />
+                        <InputLabel htmlFor="is_fabric" value="This component is Fabric" className="!mb-0" />
                     </div>
+
+                    {data.is_fabric ? (
+                        <p className="text-sm text-gray-500">
+                            The Material and Finish for a Fabric component aren't fixed here — they're
+                            chosen per Project, when this Item is added to a Furniture Schedule.
+                        </p>
+                    ) : (
+                        <div>
+                            <InputLabel htmlFor="material_id" value="Material" />
+                            <Select
+                                id="material_id"
+                                className="mt-1 block w-full"
+                                value={data.material_id}
+                                onChange={(e) => setData('material_id', e.target.value)}
+                            >
+                                <option value="">— Select —</option>
+                                {materials.map((m) => (
+                                    <option key={m.id} value={m.id}>
+                                        {m.name}
+                                    </option>
+                                ))}
+                            </Select>
+                            <InputError message={errors.material_id} className="mt-1" />
+                        </div>
+                    )}
 
                     <div>
                         <InputLabel htmlFor="quantity" value="Quantity" />

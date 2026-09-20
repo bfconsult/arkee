@@ -302,6 +302,39 @@ test('a component can be given its own supplier/cost independently of its materi
     expect((float) $component->unit_cost)->toBe(88.0);
 });
 
+test('a material is required unless the component is flagged as Fabric', function () {
+    $item = Item::factory()->create();
+
+    $this->actingAs($this->user)
+        ->post(route('items.components.store', $item), ['name' => 'Frame'])
+        ->assertSessionHasErrors('material_id');
+
+    $this->actingAs($this->user)
+        ->post(route('items.components.store', $item), ['name' => 'Upholstery', 'is_fabric' => true])
+        ->assertSessionDoesntHaveErrors('material_id')
+        ->assertRedirect();
+
+    $component = Component::sole();
+    expect($component->is_fabric)->toBeTrue();
+    expect($component->material_id)->toBeNull();
+});
+
+test('flagging an existing component as Fabric clears its material', function () {
+    $item = Item::factory()->create();
+    $material = Material::factory()->create();
+    $component = Component::factory()->for($item)->for($material)->create();
+
+    $this->actingAs($this->user)
+        ->put(route('items.components.update', [$item, $component]), [
+            'name' => $component->name,
+            'is_fabric' => true,
+        ])
+        ->assertRedirect(route('items.components.index', $item));
+
+    expect($component->fresh()->material_id)->toBeNull();
+    expect($component->fresh()->is_fabric)->toBeTrue();
+});
+
 test('a project can be created, updated, and deleted', function () {
     $client = Client::factory()->create();
     $pm = User::factory()->create();

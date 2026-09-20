@@ -16,6 +16,7 @@ class ComponentFactory extends Factory
         return [
             'item_id' => Item::factory(),
             'material_id' => Material::factory(),
+            'is_fabric' => false,
             'name' => fake()->randomElement(['Frame', 'Seat Cushion', 'Backrest', 'Legs']),
             'quantity' => fake()->numberBetween(1, 4),
             'notes' => null,
@@ -24,5 +25,18 @@ class ComponentFactory extends Factory
             'unit_cost' => null,
             'meterage' => null,
         ];
+    }
+
+    /**
+     * A Fabric component - its Material/Finish are chosen per Project
+     * instead of being fixed on the Item, so it has no material_id.
+     */
+    public function fabric(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'material_id' => null,
+            'is_fabric' => true,
+            'name' => 'Upholstery',
+        ]);
     }
 }
