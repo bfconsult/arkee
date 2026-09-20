@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Component;
 use App\Models\FurnitureScheduleLine;
 use App\Models\Item;
 use App\Models\Material;
@@ -31,7 +32,7 @@ class FurnitureScheduleLineController extends Controller
     public function store(Request $request, Project $project)
     {
         $line = $project->furnitureScheduleLines()->create($this->validated($request));
-        $this->syncFabricComponents($line, $request);
+        $this->syncComponentFinishes($line, $request);
 
         return redirect()->route('projects.schedule-lines.index', $project)->with('success', 'Schedule line added.');
     }
@@ -40,7 +41,7 @@ class FurnitureScheduleLineController extends Controller
     {
         return Inertia::render('ScheduleLines/Form', [
             'project' => $project,
-            'line' => $scheduleLine->load('fabricComponents'),
+            'line' => $scheduleLine->load('componentFinishes'),
             ...$this->options(),
         ]);
     }
@@ -48,7 +49,7 @@ class FurnitureScheduleLineController extends Controller
     public function update(Request $request, Project $project, FurnitureScheduleLine $scheduleLine)
     {
         $scheduleLine->update($this->validated($request));
-        $this->syncFabricComponents($scheduleLine, $request);
+        $this->syncComponentFinishes($scheduleLine, $request);
 
         return redirect()->route('projects.schedule-lines.index', $project)->with('success', 'Schedule line updated.');
     }
@@ -65,8 +66,12 @@ class FurnitureScheduleLineController extends Controller
         return [
             'items' => Item::with([
                 'itemCategory',
-                'components' => fn ($query) => $query->where('is_fabric', true)->select(['id', 'item_id', 'name']),
+                'components' => fn ($query) => $query->select(['id', 'item_id', 'name', 'is_fabric', 'material_id']),
+                'components.material:id,name',
+                'components.material.finishes:id,material_id,name',
             ])->orderBy('catalogue_no')->get(['id', 'catalogue_no', 'item_category_id']),
+            // Only Fabric-flagged materials are offered for a Fabric
+            // Component - a regular Component's Material is already fixed.
             'materials' => Material::where('is_fabric', true)
                 ->with('finishes:id,material_id,name')
                 ->orderBy('name')
@@ -97,27 +102,55 @@ class FurnitureScheduleLineController extends Controller
     }
 
     /**
-     * Replace this line's Fabric Component selections with the ones just
+     * Replace this line's Component Finish selections with the ones just
      * submitted - simplest correct approach given there are only ever a
-     * handful of rows per line. A row is only kept if a Material was chosen.
+     * handful of rows per line. For a Fabric component the submitted
+     * Material is used (and must actually be Fabric-flagged); for a
+     * regular component the Material is never user-chosen here - it's
+     * always the component's own fixed material_id. A row is only kept
+     * if a Material ends up resolved.
      */
-    private function syncFabricComponents(FurnitureScheduleLine $line, Request $request): void
+    private function syncComponentFinishes(FurnitureScheduleLine $line, Request $request): void
     {
         $rows = $request->validate([
-            'fabric_components' => 'array',
-            'fabric_components.*.component_id' => 'required|exists:components,id',
-            'fabric_components.*.material_id' => 'nullable|exists:materials,id,is_fabric,1',
-            'fabric_components.*.finish_id' => 'nullable|exists:finishes,id',
-        ])['fabric_components'] ?? [];
+            'component_finishes' => 'array',
+            'component_finishes.*.component_id' => 'required|exists:components,id',
+            'component_finishes.*.material_id' => 'nullable|exists:materials,id',
+            'component_finishes.*.finish_id' => 'nullable|exists:finishes,id',
+        ])['component_finishes'] ?? [];
 
-        $line->fabricComponents()->delete();
+        $line->componentFinishes()->delete();
+
+        if (empty($rows)) {
+            return;
+        }
+
+        $components = Component::whereIn('id', collect($rows)->pluck('component_id'))->get()->keyBy('id');
+        $materials = Material::whereIn('id', collect($rows)->pluck('material_id')->filter())->get()->keyBy('id');
 
         foreach ($rows as $row) {
-            if (empty($row['material_id'])) {
+            $component = $components->get($row['component_id']);
+
+            if (! $component) {
                 continue;
             }
 
-            $line->fabricComponents()->create($row);
+            if ($component->is_fabric) {
+                $material = $materials->get($row['material_id'] ?? null);
+                $materialId = $material && $material->is_fabric ? $material->id : null;
+            } else {
+                $materialId = $component->material_id;
+            }
+
+            if (empty($materialId)) {
+                continue;
+            }
+
+            $line->componentFinishes()->create([
+                'component_id' => $component->id,
+                'material_id' => $materialId,
+                'finish_id' => $row['finish_id'] ?? null,
+            ]);
         }
     }
 }

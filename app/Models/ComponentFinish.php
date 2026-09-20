@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class FabricComponent extends Model
+class ComponentFinish extends Model
 {
     use HasFactory;
 

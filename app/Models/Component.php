@@ -40,8 +40,8 @@ class Component extends Model
         return $this->belongsTo(Supplier::class);
     }
 
-    public function fabricComponents()
+    public function componentFinishes()
     {
-        return $this->hasMany(FabricComponent::class);
+        return $this->hasMany(ComponentFinish::class);
     }
 }

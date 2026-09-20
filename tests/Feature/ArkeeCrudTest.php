@@ -2,8 +2,8 @@
 
 use App\Models\Client;
 use App\Models\Component;
+use App\Models\ComponentFinish;
 use App\Models\DeliveryLocation;
-use App\Models\FabricComponent;
 use App\Models\Finish;
 use App\Models\FurnitureScheduleLine;
 use App\Models\Item;
@@ -478,7 +478,7 @@ test('adding a schedule line for an item with fabric components saves a Material
     $this->actingAs($this->user)
         ->post(route('projects.schedule-lines.store', $project), [
             'item_id' => $item->id,
-            'fabric_components' => [
+            'component_finishes' => [
                 ['component_id' => $upholstery->id, 'material_id' => $material->id, 'finish_id' => $finish->id],
                 ['component_id' => $cushion->id, 'material_id' => '', 'finish_id' => ''],
             ],
@@ -486,27 +486,55 @@ test('adding a schedule line for an item with fabric components saves a Material
         ->assertRedirect(route('projects.schedule-lines.index', $project));
 
     $line = FurnitureScheduleLine::sole();
-    expect(FabricComponent::count())->toBe(1);
+    expect(ComponentFinish::count())->toBe(1);
 
-    $fabricComponent = FabricComponent::sole();
-    expect($fabricComponent->furniture_schedule_line_id)->toBe($line->id);
-    expect($fabricComponent->component_id)->toBe($upholstery->id);
-    expect($fabricComponent->material_id)->toBe($material->id);
-    expect($fabricComponent->finish_id)->toBe($finish->id);
+    $componentFinish = ComponentFinish::sole();
+    expect($componentFinish->furniture_schedule_line_id)->toBe($line->id);
+    expect($componentFinish->component_id)->toBe($upholstery->id);
+    expect($componentFinish->material_id)->toBe($material->id);
+    expect($componentFinish->finish_id)->toBe($finish->id);
 
     $this->actingAs($this->user)
         ->put(route('projects.schedule-lines.update', [$project, $line]), [
             'item_id' => $item->id,
-            'fabric_components' => [
+            'component_finishes' => [
                 ['component_id' => $upholstery->id, 'material_id' => $otherMaterial->id, 'finish_id' => ''],
                 ['component_id' => $cushion->id, 'material_id' => '', 'finish_id' => ''],
             ],
         ])
         ->assertRedirect(route('projects.schedule-lines.index', $project));
 
-    $fabricComponent = FabricComponent::sole();
-    expect($fabricComponent->material_id)->toBe($otherMaterial->id);
-    expect($fabricComponent->finish_id)->toBeNull();
+    $componentFinish = ComponentFinish::sole();
+    expect($componentFinish->material_id)->toBe($otherMaterial->id);
+    expect($componentFinish->finish_id)->toBeNull();
+});
+
+test('a non-fabric component always uses its own fixed Material - only its Finish is chosen on the schedule line', function () {
+    $project = Project::factory()->create();
+    $item = Item::factory()->create();
+    $material = Material::factory()->create(['is_fabric' => false]);
+    $finish = Finish::factory()->for($material)->create();
+    $unrelatedMaterial = Material::factory()->create(['is_fabric' => false]);
+
+    $frame = Component::factory()->for($item)->for($material)->create(['name' => 'Frame']);
+
+    $this->actingAs($this->user)
+        ->post(route('projects.schedule-lines.store', $project), [
+            'item_id' => $item->id,
+            // A tampered/mismatched material_id must be ignored - the
+            // component's own fixed material always wins.
+            'component_finishes' => [
+                ['component_id' => $frame->id, 'material_id' => $unrelatedMaterial->id, 'finish_id' => $finish->id],
+            ],
+        ])
+        ->assertRedirect(route('projects.schedule-lines.index', $project));
+
+    $line = FurnitureScheduleLine::sole();
+    $componentFinish = ComponentFinish::sole();
+    expect($componentFinish->furniture_schedule_line_id)->toBe($line->id);
+    expect($componentFinish->component_id)->toBe($frame->id);
+    expect($componentFinish->material_id)->toBe($material->id);
+    expect($componentFinish->finish_id)->toBe($finish->id);
 });
 
 test('a purchase order can be created, updated, and deleted within a project', function () {

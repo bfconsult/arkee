@@ -8,9 +8,9 @@ use App\Models\Material;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\FabricComponent>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ComponentFinish>
  */
-class FabricComponentFactory extends Factory
+class ComponentFinishFactory extends Factory
 {
     public function definition(): array
     {
