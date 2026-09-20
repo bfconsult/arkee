@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Item;
+use App\Models\ItemCategory;
 use App\Models\PackagingType;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
@@ -13,13 +14,14 @@ class ItemController extends Controller
     public function index()
     {
         return Inertia::render('Items/Index', [
-            'items' => Item::with(['packagingType', 'supplier'])->orderBy('catalogue_no')->get(),
+            'items' => Item::with(['itemCategory', 'packagingType', 'supplier'])->orderBy('catalogue_no')->get(),
         ]);
     }
 
     public function show(Item $item)
     {
         $item->load([
+            'itemCategory',
             'packagingType',
             'supplier',
             'components.material.finishes',
@@ -74,6 +76,7 @@ class ItemController extends Controller
     private function options(): array
     {
         return [
+            'itemCategories' => ItemCategory::orderBy('name')->get(['id', 'name']),
             'packagingTypes' => PackagingType::orderBy('name')->get(['id', 'name']),
             'suppliers' => Supplier::orderBy('name')->get(['id', 'name']),
         ];
@@ -83,7 +86,7 @@ class ItemController extends Controller
     {
         return $request->validate([
             'catalogue_no' => 'nullable|string|max:255',
-            'item_type' => 'nullable|string|max:255',
+            'item_category_id' => 'nullable|exists:item_categories,id',
             'height_mm' => 'nullable|integer|min:0',
             'width_mm' => 'nullable|integer|min:0',
             'depth_mm' => 'nullable|integer|min:0',

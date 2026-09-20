@@ -63,7 +63,7 @@ class FurnitureScheduleLineController extends Controller
     private function options(Project $project, ?FurnitureScheduleLine $editing = null): array
     {
         return [
-            'items' => Item::orderBy('catalogue_no')->get(['id', 'catalogue_no', 'item_type']),
+            'items' => Item::with('itemCategory')->orderBy('catalogue_no')->get(['id', 'catalogue_no', 'item_category_id']),
             'suppliers' => Supplier::orderBy('name')->get(['id', 'name']),
             'finishes' => Finish::orderBy('name')->get(['id', 'name']),
             'deliveryLocations' => DeliveryLocation::orderBy('name')->get(['id', 'name']),

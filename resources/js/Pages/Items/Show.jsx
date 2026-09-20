@@ -11,7 +11,7 @@ function field(label, value) {
 }
 
 export default function Show({ item }) {
-    const title = item.catalogue_no ?? item.item_type ?? 'Item';
+    const title = item.catalogue_no ?? item.item_category?.name ?? 'Item';
     const dimensions =
         item.height_mm || item.width_mm || item.depth_mm
             ? `${item.height_mm ?? '—'} x ${item.width_mm ?? '—'} x ${item.depth_mm ?? '—'} mm`
@@ -37,7 +37,7 @@ export default function Show({ item }) {
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">{title}</h2>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                     {field('Catalogue No.', item.catalogue_no)}
-                    {field('Item Type', item.item_type)}
+                    {field('Item Category', item.item_category?.name)}
                     {field('Supplier', item.supplier?.name)}
                     {field('Packaging Type', item.packaging_type?.name)}
                     {field('Dimensions (H x W x D)', dimensions)}

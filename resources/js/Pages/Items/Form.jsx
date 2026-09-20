@@ -5,13 +5,13 @@ import Select from '@/Components/Select';
 import InputError from '@/Components/InputError';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Form({ item, packagingTypes, suppliers }) {
+export default function Form({ item, itemCategories, packagingTypes, suppliers }) {
     const isNew = !item;
     const title = isNew ? 'Add Item' : `Edit ${item.catalogue_no ?? 'Item'}`;
 
     const { data, setData, post, put, processing, errors } = useForm({
         catalogue_no: item?.catalogue_no ?? '',
-        item_type: item?.item_type ?? '',
+        item_category_id: item?.item_category_id ?? '',
         height_mm: item?.height_mm ?? '',
         width_mm: item?.width_mm ?? '',
         depth_mm: item?.depth_mm ?? '',
@@ -45,14 +45,21 @@ export default function Form({ item, packagingTypes, suppliers }) {
                         </div>
 
                         <div>
-                            <InputLabel htmlFor="item_type" value="Item Type" />
-                            <TextInput
-                                id="item_type"
+                            <InputLabel htmlFor="item_category_id" value="Item Category" />
+                            <Select
+                                id="item_category_id"
                                 className="mt-1 block w-full"
-                                value={data.item_type}
-                                onChange={(e) => setData('item_type', e.target.value)}
-                            />
-                            <InputError message={errors.item_type} className="mt-1" />
+                                value={data.item_category_id}
+                                onChange={(e) => setData('item_category_id', e.target.value)}
+                            >
+                                <option value="">— None —</option>
+                                {itemCategories.map((c) => (
+                                    <option key={c.id} value={c.id}>
+                                        {c.name}
+                                    </option>
+                                ))}
+                            </Select>
+                            <InputError message={errors.item_category_id} className="mt-1" />
                         </div>
                     </div>
 

@@ -17,7 +17,11 @@ export default function Index({ items }) {
                 emptyMessage="No items yet."
                 columns={[
                     { key: 'catalogue_no', label: 'Catalogue No.' },
-                    { key: 'item_type', label: 'Item Type' },
+                    {
+                        key: 'item_category',
+                        label: 'Category',
+                        render: (row) => row.item_category?.name ?? '—',
+                    },
                     {
                         key: 'supplier',
                         label: 'Supplier',

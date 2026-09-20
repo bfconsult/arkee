@@ -52,7 +52,7 @@ export default function Form({ project, line, items, suppliers, finishes, delive
                                 {items.map((i) => (
                                     <option key={i.id} value={i.id}>
                                         {i.catalogue_no ?? `#${i.id}`}
-                                        {i.item_type ? ` — ${i.item_type}` : ''}
+                                        {i.item_category ? ` — ${i.item_category.name}` : ''}
                                     </option>
                                 ))}
                             </Select>

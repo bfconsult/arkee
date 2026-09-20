@@ -105,7 +105,7 @@ export default function Show({ material }) {
                                             href={route('items.show', component.item_id)}
                                             className="text-green-700 hover:underline"
                                         >
-                                            {component.item?.catalogue_no ?? component.item?.item_type ?? `Item #${component.item_id}`}
+                                            {component.item?.catalogue_no ?? `Item #${component.item_id}`}
                                         </Link>
                                     </td>
                                     <td className="px-2 py-2 text-gray-900">{component.name}</td>

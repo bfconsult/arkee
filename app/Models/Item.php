@@ -11,7 +11,7 @@ class Item extends Model
 
     protected $fillable = [
         'catalogue_no',
-        'item_type',
+        'item_category_id',
         'height_mm',
         'width_mm',
         'depth_mm',
@@ -19,6 +19,11 @@ class Item extends Model
         'supplier_id',
         'notes',
     ];
+
+    public function itemCategory()
+    {
+        return $this->belongsTo(ItemCategory::class);
+    }
 
     public function packagingType()
     {

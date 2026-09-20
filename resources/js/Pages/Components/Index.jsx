@@ -4,7 +4,7 @@ import { Head, Link } from '@inertiajs/react';
 
 export default function Index({ item, components }) {
     return (
-        <AuthenticatedLayout title={`Components — ${item.catalogue_no ?? item.item_type ?? 'Item'}`}>
+        <AuthenticatedLayout title={`Components — ${item.catalogue_no ?? 'Item'}`}>
             <Head title="Components" />
 
             <Link href={route('items.edit', item.id)} className="text-sm text-green-700 hover:underline">

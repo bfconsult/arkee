@@ -8,6 +8,7 @@ use App\Models\DeliveryLocation;
 use App\Models\Finish;
 use App\Models\FurnitureScheduleLine;
 use App\Models\Item;
+use App\Models\ItemCategory;
 use App\Models\Material;
 use App\Models\PackagingType;
 use App\Models\Project;
@@ -29,6 +30,7 @@ class DatabaseSeeder extends Seeder
         $suppliers = Supplier::factory()->count(8)->create();
         DeliveryLocation::factory()->count(4)->create();
         $packagingTypes = PackagingType::factory()->count(5)->create();
+        $itemCategories = ItemCategory::factory()->count(6)->create();
 
         // Materials are a shared catalogue now - build the pool (with their
         // Finishes) before any Item/Component references them.
@@ -42,6 +44,7 @@ class DatabaseSeeder extends Seeder
         Item::factory()
             ->count(12)
             ->create([
+                'item_category_id' => fn () => $itemCategories->random()->id,
                 'packaging_type_id' => fn () => $packagingTypes->random()->id,
                 'supplier_id' => fn () => $suppliers->random()->id,
             ])

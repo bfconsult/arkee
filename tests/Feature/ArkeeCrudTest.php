@@ -6,6 +6,7 @@ use App\Models\DeliveryLocation;
 use App\Models\Finish;
 use App\Models\FurnitureScheduleLine;
 use App\Models\Item;
+use App\Models\ItemCategory;
 use App\Models\Material;
 use App\Models\PackagingType;
 use App\Models\Project;
@@ -91,11 +92,35 @@ test('a packaging type can be created, updated, and deleted', function () {
     expect(PackagingType::count())->toBe(0);
 });
 
-test('an item can be created, updated, and deleted', function () {
-    $supplier = Supplier::factory()->create();
+test('an item category can be created, updated, and deleted', function () {
+    $this->actingAs($this->user)
+        ->post(route('item-categories.store'), ['name' => 'Sofa'])
+        ->assertRedirect(route('item-categories.index'));
+
+    $itemCategory = ItemCategory::sole();
 
     $this->actingAs($this->user)
-        ->post(route('items.store'), ['catalogue_no' => 'CAT-001', 'item_type' => 'Sofa', 'supplier_id' => $supplier->id])
+        ->put(route('item-categories.update', $itemCategory), ['name' => 'Armchair'])
+        ->assertRedirect(route('item-categories.index'));
+    expect($itemCategory->fresh()->name)->toBe('Armchair');
+
+    $this->actingAs($this->user)
+        ->delete(route('item-categories.destroy', $itemCategory))
+        ->assertRedirect(route('item-categories.index'));
+    expect(ItemCategory::count())->toBe(0);
+});
+
+test('an item can be created, updated, and deleted', function () {
+    $supplier = Supplier::factory()->create();
+    $sofaCategory = ItemCategory::factory()->create(['name' => 'Sofa']);
+    $armchairCategory = ItemCategory::factory()->create(['name' => 'Armchair']);
+
+    $this->actingAs($this->user)
+        ->post(route('items.store'), [
+            'catalogue_no' => 'CAT-001',
+            'item_category_id' => $sofaCategory->id,
+            'supplier_id' => $supplier->id,
+        ])
         ->assertRedirect();
 
     $item = Item::sole();
@@ -103,9 +128,9 @@ test('an item can be created, updated, and deleted', function () {
     expect($item->supplier_id)->toBe($supplier->id);
 
     $this->actingAs($this->user)
-        ->put(route('items.update', $item), ['catalogue_no' => 'CAT-001', 'item_type' => 'Armchair'])
+        ->put(route('items.update', $item), ['catalogue_no' => 'CAT-001', 'item_category_id' => $armchairCategory->id])
         ->assertRedirect(route('items.index'));
-    expect($item->fresh()->item_type)->toBe('Armchair');
+    expect($item->fresh()->item_category_id)->toBe($armchairCategory->id);
 
     $this->actingAs($this->user)
         ->delete(route('items.destroy', $item))

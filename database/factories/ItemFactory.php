@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\ItemCategory;
 use App\Models\PackagingType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -14,7 +15,7 @@ class ItemFactory extends Factory
     {
         return [
             'catalogue_no' => fake()->unique()->bothify('CAT-####'),
-            'item_type' => fake()->randomElement(['Sofa', 'Armchair', 'Dining Table', 'Bed Frame']),
+            'item_category_id' => ItemCategory::factory(),
             'height_mm' => fake()->numberBetween(400, 1200),
             'width_mm' => fake()->numberBetween(400, 2000),
             'depth_mm' => fake()->numberBetween(400, 1000),

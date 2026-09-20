@@ -5,6 +5,7 @@ use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\DeliveryLocationController;
 use App\Http\Controllers\FinishController;
 use App\Http\Controllers\FurnitureScheduleLineController;
+use App\Http\Controllers\ItemCategoryController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\PackagingTypeController;
@@ -63,6 +64,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('suppliers', SupplierController::class)->except('show');
     Route::resource('delivery-locations', DeliveryLocationController::class)->except('show');
     Route::resource('packaging-types', PackagingTypeController::class)->except('show');
+    Route::resource('item-categories', ItemCategoryController::class)->except('show');
     Route::resource('materials', MaterialController::class);
     Route::resource('materials.finishes', FinishController::class)->except('show');
     Route::resource('items', ItemController::class);

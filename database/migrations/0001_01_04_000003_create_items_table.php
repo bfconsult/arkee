@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::create('items', function (Blueprint $table) {
             $table->id();
             $table->string('catalogue_no')->nullable();
-            $table->string('item_type')->nullable();
             $table->unsignedInteger('height_mm')->nullable();
             $table->unsignedInteger('width_mm')->nullable();
             $table->unsignedInteger('depth_mm')->nullable();
