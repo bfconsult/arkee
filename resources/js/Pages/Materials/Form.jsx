@@ -15,7 +15,6 @@ export default function Form({ material, suppliers }) {
         supplier_id: material?.supplier_id ?? '',
         code_supplier: material?.code_supplier ?? '',
         unit_cost: material?.unit_cost ?? '',
-        meterage: material?.meterage ?? '',
         notes: material?.notes ?? '',
     });
 
@@ -95,19 +94,6 @@ export default function Form({ material, suppliers }) {
                             />
                             <InputError message={errors.unit_cost} className="mt-1" />
                         </div>
-                    </div>
-
-                    <div>
-                        <InputLabel htmlFor="meterage" value="Meterage" />
-                        <TextInput
-                            id="meterage"
-                            type="number"
-                            step="0.01"
-                            className="mt-1 block w-full"
-                            value={data.meterage}
-                            onChange={(e) => setData('meterage', e.target.value)}
-                        />
-                        <InputError message={errors.meterage} className="mt-1" />
                     </div>
 
                     <div>

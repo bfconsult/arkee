@@ -20,7 +20,6 @@ class MaterialFactory extends Factory
             'supplier_id' => Supplier::factory(),
             'code_supplier' => fake()->bothify('SUP-####'),
             'unit_cost' => fake()->randomFloat(2, 10, 500),
-            'meterage' => fake()->randomFloat(3, 1, 15),
             'notes' => null,
         ];
     }

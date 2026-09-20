@@ -27,7 +27,6 @@ export default function Index({ materials }) {
                         label: 'Unit Cost',
                         render: (row) => (row.unit_cost != null ? `$${row.unit_cost}` : '—'),
                     },
-                    { key: 'meterage', label: 'Meterage' },
                 ]}
             />
         </AuthenticatedLayout>

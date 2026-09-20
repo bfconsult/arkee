@@ -79,7 +79,6 @@ class MaterialController extends Controller
             'supplier_id' => 'nullable|exists:suppliers,id',
             'code_supplier' => 'nullable|string|max:255',
             'unit_cost' => 'nullable|numeric|min:0',
-            'meterage' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
         ]);
     }

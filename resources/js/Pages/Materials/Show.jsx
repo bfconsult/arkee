@@ -35,7 +35,6 @@ export default function Show({ material }) {
                     {field('Supplier', material.supplier?.name)}
                     {field('Supplier Code', material.code_supplier)}
                     {field('Unit Cost', material.unit_cost != null ? `$${material.unit_cost}` : null)}
-                    {field('Meterage', material.meterage)}
                 </div>
                 {material.notes && (
                     <div className="mt-4">

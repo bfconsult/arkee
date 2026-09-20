@@ -70,7 +70,6 @@ export default function Show({ item }) {
                             const supplier = component.supplier ?? material?.supplier ?? item.supplier;
                             const unitCost = component.unit_cost ?? material?.unit_cost;
                             const codeSupplier = component.code_supplier ?? material?.code_supplier;
-                            const meterage = component.meterage ?? material?.meterage;
                             const sourcedOnComponent = component.supplier_id != null || component.unit_cost != null;
                             const supplierDiffersFromItem =
                                 component.supplier_id != null &&
@@ -109,7 +108,7 @@ export default function Show({ item }) {
                                         {field('Supplier', supplier?.name)}
                                         {field('Supplier Code', codeSupplier)}
                                         {field('Unit Cost', unitCost != null ? `$${unitCost}` : null)}
-                                        {field('Meterage', meterage)}
+                                        {field('Meterage', component.meterage)}
                                     </div>
                                     {sourcedOnComponent && (
                                         <p className="mt-1 text-xs text-gray-400">Sourced on this Component, not the Material.</p>

@@ -19,8 +19,6 @@ return new class extends Migration
             $table->foreignId('supplier_id')->nullable()->constrained()->nullOnDelete();
             $table->string('code_supplier')->nullable();
             $table->decimal('unit_cost', 10, 2)->nullable();
-            // Fabric meterage - how much of this material one unit consumes.
-            $table->decimal('meterage', 8, 3)->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
         });

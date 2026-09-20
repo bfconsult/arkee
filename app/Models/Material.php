@@ -15,7 +15,6 @@ class Material extends Model
         'supplier_id',
         'code_supplier',
         'unit_cost',
-        'meterage',
         'notes',
     ];
 
