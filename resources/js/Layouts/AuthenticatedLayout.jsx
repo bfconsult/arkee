@@ -3,7 +3,10 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import Avatar from '@/Components/Avatar';
 import SiteNotice from '@/Components/SiteNotice';
 
-const TASK_NAV_ITEMS = [{ label: 'Quotes', route: 'quotes.index' }];
+const TASK_NAV_ITEMS = [
+    { label: 'Quotes', route: 'quotes.index' },
+    { label: 'Projects', route: 'projects.index' },
+];
 
 const DATA_NAV_ITEMS = [
     { label: 'Clients', route: 'clients.index' },
@@ -13,7 +16,6 @@ const DATA_NAV_ITEMS = [
     { label: 'Item Categories', route: 'item-categories.index' },
     { label: 'Materials', route: 'materials.index' },
     { label: 'Items', route: 'items.index' },
-    { label: 'Projects', route: 'projects.index' },
 ];
 
 function isActive(item) {
