@@ -71,7 +71,7 @@ class ProjectController extends Controller
             'project_descriptor' => 'nullable|string|max:255',
             'version' => 'nullable|integer|min:1',
             'date' => 'nullable|date',
-            'status' => 'nullable|string|max:255',
+            'status' => 'required|in:quote,complete,approved,cancelled',
             'site_name' => 'nullable|string|max:255',
             'site_address' => 'nullable|string|max:255',
             'site_contact_name' => 'nullable|string|max:255',

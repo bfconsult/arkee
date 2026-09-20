@@ -9,6 +9,14 @@ class Project extends Model
 {
     use HasFactory;
 
+    const STATUS_QUOTE = 'quote';
+
+    const STATUS_COMPLETE = 'complete';
+
+    const STATUS_APPROVED = 'approved';
+
+    const STATUS_CANCELLED = 'cancelled';
+
     protected $fillable = [
         'quote_number',
         'client_id',

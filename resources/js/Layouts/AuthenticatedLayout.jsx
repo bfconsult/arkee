@@ -3,7 +3,7 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import Avatar from '@/Components/Avatar';
 import SiteNotice from '@/Components/SiteNotice';
 
-const TASK_NAV_ITEMS = [];
+const TASK_NAV_ITEMS = [{ label: 'Quotes', route: 'quotes.index' }];
 
 const DATA_NAV_ITEMS = [
     { label: 'Clients', route: 'clients.index' },

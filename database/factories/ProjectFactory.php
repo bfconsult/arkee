@@ -20,7 +20,7 @@ class ProjectFactory extends Factory
             'project_descriptor' => fake()->streetName() . ' Residence',
             'version' => 1,
             'date' => fake()->date(),
-            'status' => 'active',
+            'status' => fake()->randomElement(['quote', 'complete', 'approved', 'cancelled']),
             'site_name' => fake()->streetName(),
             'site_address' => fake()->address(),
             'site_contact_name' => fake()->name(),

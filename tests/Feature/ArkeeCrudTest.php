@@ -379,20 +379,24 @@ test('a project can be created, updated, and deleted', function () {
             'client_id' => $client->id,
             'pm_user_id' => $pm->id,
             'project_descriptor' => 'Riverside Fitout',
+            'status' => 'quote',
         ])
         ->assertRedirect();
 
     $project = Project::sole();
     expect($project->project_descriptor)->toBe('Riverside Fitout');
+    expect($project->status)->toBe('quote');
 
     $this->actingAs($this->user)
         ->put(route('projects.update', $project), [
             'client_id' => $client->id,
             'pm_user_id' => $pm->id,
             'project_descriptor' => 'Riverside Fitout v2',
+            'status' => 'approved',
         ])
         ->assertRedirect(route('projects.index'));
     expect($project->fresh()->project_descriptor)->toBe('Riverside Fitout v2');
+    expect($project->fresh()->status)->toBe('approved');
 
     $this->actingAs($this->user)
         ->delete(route('projects.destroy', $project))
@@ -474,4 +478,19 @@ test('a purchase order can be created, updated, and deleted within a project', f
         ->delete(route('projects.purchase-orders.destroy', [$project, $po]))
         ->assertRedirect(route('projects.purchase-orders.index', $project));
     expect(PurchaseOrder::count())->toBe(0);
+});
+
+test('the Quotes page lists projects grouped by status', function () {
+    $quote = Project::factory()->create(['status' => 'quote', 'project_descriptor' => 'Quote Stage']);
+    $approved = Project::factory()->create(['status' => 'approved', 'project_descriptor' => 'Approved Stage']);
+
+    $this->actingAs($this->user)
+        ->get(route('quotes.index'))
+        ->assertInertia(fn ($page) => $page
+            ->component('Quotes/Index')
+            ->where('quotesByStatus.quote.0.id', $quote->id)
+            ->where('quotesByStatus.approved.0.id', $approved->id)
+            ->where('quotesByStatus.complete', [])
+            ->where('quotesByStatus.cancelled', [])
+        );
 });

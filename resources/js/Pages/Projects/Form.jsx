@@ -16,7 +16,7 @@ export default function Form({ project, clients, users }) {
         project_descriptor: project?.project_descriptor ?? '',
         version: project?.version ?? 1,
         date: project?.date ?? '',
-        status: project?.status ?? '',
+        status: project?.status ?? 'quote',
         site_name: project?.site_name ?? '',
         site_address: project?.site_address ?? '',
         site_contact_name: project?.site_contact_name ?? '',
@@ -123,12 +123,17 @@ export default function Form({ project, clients, users }) {
 
                     <div>
                         <InputLabel htmlFor="status" value="Status" />
-                        <TextInput
+                        <Select
                             id="status"
                             className="mt-1 block w-full"
                             value={data.status}
                             onChange={(e) => setData('status', e.target.value)}
-                        />
+                        >
+                            <option value="quote">Quote</option>
+                            <option value="complete">Complete</option>
+                            <option value="approved">Approved</option>
+                            <option value="cancelled">Cancelled</option>
+                        </Select>
                         <InputError message={errors.status} className="mt-1" />
                     </div>
 

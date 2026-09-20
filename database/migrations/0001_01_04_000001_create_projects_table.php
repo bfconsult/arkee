@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('project_descriptor')->nullable();
             $table->unsignedInteger('version')->default(1);
             $table->date('date')->nullable();
-            // Plain string, not an enum - the doc doesn't define a fixed set
-            // of project statuses (unlike purchase_orders.order_status).
-            $table->string('status')->nullable();
+            // A Project's status doubles as its Quote status - see the
+            // Quotes task, which lists Projects grouped by this column.
+            $table->enum('status', ['quote', 'complete', 'approved', 'cancelled'])->default('quote');
             $table->string('site_name')->nullable();
             $table->string('site_address')->nullable();
             $table->string('site_contact_name')->nullable();

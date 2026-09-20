@@ -12,6 +12,7 @@ use App\Http\Controllers\PackagingTypeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PurchaseOrderController;
+use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -69,6 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('materials.finishes', FinishController::class)->except('show');
     Route::resource('items', ItemController::class);
     Route::resource('items.components', ComponentController::class)->except('show');
+    Route::get('quotes', [QuoteController::class, 'index'])->name('quotes.index');
     Route::resource('projects', ProjectController::class)->except('show');
     Route::resource('projects.schedule-lines', FurnitureScheduleLineController::class)->except('show');
     Route::resource('projects.purchase-orders', PurchaseOrderController::class)->except('show');

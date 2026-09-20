@@ -2,6 +2,13 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import DataTable from '@/Components/DataTable';
 import { Head } from '@inertiajs/react';
 
+const STATUS_LABELS = {
+    quote: 'Quote',
+    complete: 'Complete',
+    approved: 'Approved',
+    cancelled: 'Cancelled',
+};
+
 export default function Index({ projects }) {
     return (
         <AuthenticatedLayout title="Projects">
@@ -22,7 +29,11 @@ export default function Index({ projects }) {
                         render: (row) => row.client?.company_name ?? '—',
                     },
                     { key: 'project_descriptor', label: 'Descriptor' },
-                    { key: 'status', label: 'Status' },
+                    {
+                        key: 'status',
+                        label: 'Status',
+                        render: (row) => STATUS_LABELS[row.status] ?? row.status,
+                    },
                     { key: 'date', label: 'Date' },
                     {
                         key: 'pm_user',
