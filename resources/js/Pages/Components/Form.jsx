@@ -54,6 +54,8 @@ export default function Form({ item, component, materials, suppliers }) {
                                 setData('is_fabric', e.target.checked);
                                 if (e.target.checked) {
                                     setData('material_id', '');
+                                } else {
+                                    setData('meterage', '');
                                 }
                             }}
                             className="rounded border-gray-300 text-green-600 focus:ring-green-500"
@@ -136,18 +138,20 @@ export default function Form({ item, component, materials, suppliers }) {
                                 </div>
                             </div>
 
-                            <div>
-                                <InputLabel htmlFor="meterage" value="Meterage" />
-                                <TextInput
-                                    id="meterage"
-                                    type="number"
-                                    step="0.01"
-                                    className="mt-1 block w-full"
-                                    value={data.meterage}
-                                    onChange={(e) => setData('meterage', e.target.value)}
-                                />
-                                <InputError message={errors.meterage} className="mt-1" />
-                            </div>
+                            {data.is_fabric && (
+                                <div>
+                                    <InputLabel htmlFor="meterage" value="Meterage" />
+                                    <TextInput
+                                        id="meterage"
+                                        type="number"
+                                        step="0.01"
+                                        className="mt-1 block w-full"
+                                        value={data.meterage}
+                                        onChange={(e) => setData('meterage', e.target.value)}
+                                    />
+                                    <InputError message={errors.meterage} className="mt-1" />
+                                </div>
+                            )}
                         </div>
                     </div>
 

@@ -88,6 +88,8 @@ class ComponentController extends Controller
         // Furniture Schedule Line - never store one fixed on the Item.
         if ($data['is_fabric'] ?? false) {
             $data['material_id'] = null;
+        } else {
+            $data['meterage'] = null;
         }
 
         return $data;

@@ -333,6 +333,43 @@ test('flagging an existing component as Fabric clears its material', function ()
     expect($component->fresh()->is_fabric)->toBeTrue();
 });
 
+test('meterage is only kept for a Fabric component', function () {
+    $item = Item::factory()->create();
+    $material = Material::factory()->create();
+
+    $this->actingAs($this->user)
+        ->post(route('items.components.store', $item), [
+            'material_id' => $material->id,
+            'name' => 'Frame',
+            'meterage' => 3.5,
+        ])
+        ->assertRedirect();
+
+    expect(Component::sole()->meterage)->toBeNull();
+
+    $this->actingAs($this->user)
+        ->post(route('items.components.store', $item), [
+            'is_fabric' => true,
+            'name' => 'Upholstery',
+            'meterage' => 3.5,
+        ])
+        ->assertRedirect();
+
+    $fabricComponent = Component::where('is_fabric', true)->sole();
+    expect((float) $fabricComponent->meterage)->toBe(3.5);
+
+    $this->actingAs($this->user)
+        ->put(route('items.components.update', [$item, $fabricComponent]), [
+            'name' => $fabricComponent->name,
+            'is_fabric' => false,
+            'material_id' => $material->id,
+            'meterage' => 3.5,
+        ])
+        ->assertRedirect(route('items.components.index', $item));
+
+    expect($fabricComponent->fresh()->meterage)->toBeNull();
+});
+
 test('a project can be created, updated, and deleted', function () {
     $client = Client::factory()->create();
     $pm = User::factory()->create();
