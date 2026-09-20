@@ -260,7 +260,6 @@ test('a component can be created, updated, and deleted within an item, and must 
         ->post(route('items.components.store', $item), [
             'material_id' => $material->id,
             'name' => 'Frame',
-            'quantity' => 1,
         ])
         ->assertRedirect();
 
@@ -271,11 +270,10 @@ test('a component can be created, updated, and deleted within an item, and must 
     $this->actingAs($this->user)
         ->put(route('items.components.update', [$item, $component]), [
             'material_id' => $material->id,
-            'name' => 'Frame',
-            'quantity' => 2,
+            'name' => 'Frame Updated',
         ])
         ->assertRedirect(route('items.components.index', $item));
-    expect($component->fresh()->quantity)->toBe(2);
+    expect($component->fresh()->name)->toBe('Frame Updated');
 
     $this->actingAs($this->user)
         ->delete(route('items.components.destroy', [$item, $component]))

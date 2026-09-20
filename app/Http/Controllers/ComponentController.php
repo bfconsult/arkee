@@ -77,7 +77,6 @@ class ComponentController extends Controller
                 'exists:materials,id',
             ],
             'name' => 'required|string|max:255',
-            'quantity' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',
             'supplier_id' => 'nullable|exists:suppliers,id',
             'code_supplier' => 'nullable|string|max:255',

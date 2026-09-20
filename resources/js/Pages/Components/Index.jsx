@@ -26,7 +26,6 @@ export default function Index({ item, components }) {
                             label: 'Material',
                             render: (row) => (row.is_fabric ? 'Fabric (chosen per Project)' : row.material?.name ?? '—'),
                         },
-                        { key: 'quantity', label: 'Quantity' },
                     ]}
                 />
             </div>

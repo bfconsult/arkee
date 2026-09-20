@@ -94,7 +94,6 @@ export default function Show({ material }) {
                             <tr className="border-b border-gray-200 text-left text-xs uppercase text-gray-500">
                                 <th className="px-2 py-2 font-medium">Item</th>
                                 <th className="px-2 py-2 font-medium">Component</th>
-                                <th className="px-2 py-2 font-medium">Qty</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
@@ -109,7 +108,6 @@ export default function Show({ material }) {
                                         </Link>
                                     </td>
                                     <td className="px-2 py-2 text-gray-900">{component.name}</td>
-                                    <td className="px-2 py-2 text-gray-900">{component.quantity ?? '—'}</td>
                                 </tr>
                             ))}
                         </tbody>

@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('item_id')->constrained()->cascadeOnDelete();
             $table->string('name');
-            $table->unsignedInteger('quantity')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
         });

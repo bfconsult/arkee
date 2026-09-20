@@ -13,7 +13,6 @@ export default function Form({ item, component, materials, suppliers }) {
         is_fabric: component?.is_fabric ?? false,
         material_id: component?.material_id ?? '',
         name: component?.name ?? '',
-        quantity: component?.quantity ?? '',
         notes: component?.notes ?? '',
         supplier_id: component?.supplier_id ?? '',
         code_supplier: component?.code_supplier ?? '',
@@ -86,18 +85,6 @@ export default function Form({ item, component, materials, suppliers }) {
                             <InputError message={errors.material_id} className="mt-1" />
                         </div>
                     )}
-
-                    <div>
-                        <InputLabel htmlFor="quantity" value="Quantity" />
-                        <TextInput
-                            id="quantity"
-                            type="number"
-                            className="mt-1 block w-full"
-                            value={data.quantity}
-                            onChange={(e) => setData('quantity', e.target.value)}
-                        />
-                        <InputError message={errors.quantity} className="mt-1" />
-                    </div>
 
                     <div className="border-t pt-4">
                         <h3 className="text-sm font-medium text-gray-700 mb-2">

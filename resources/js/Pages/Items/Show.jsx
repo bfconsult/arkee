@@ -81,12 +81,7 @@ export default function Show({ item }) {
                                 <div key={component.id} className="py-4 first:pt-0 last:pb-0">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <div className="font-medium text-gray-900">
-                                                {component.name}
-                                                {component.quantity != null && (
-                                                    <span className="text-gray-500 font-normal"> × {component.quantity}</span>
-                                                )}
-                                            </div>
+                                            <div className="font-medium text-gray-900">{component.name}</div>
                                             {component.is_fabric ? (
                                                 <span className="inline-block px-2 py-0.5 rounded-full text-xs bg-amber-100 text-amber-800">
                                                     Fabric — chosen per Project

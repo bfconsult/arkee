@@ -14,7 +14,6 @@ class Component extends Model
         'material_id',
         'is_fabric',
         'name',
-        'quantity',
         'notes',
         'supplier_id',
         'code_supplier',

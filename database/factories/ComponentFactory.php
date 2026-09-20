@@ -18,7 +18,6 @@ class ComponentFactory extends Factory
             'material_id' => Material::factory(),
             'is_fabric' => false,
             'name' => fake()->randomElement(['Frame', 'Seat Cushion', 'Backrest', 'Legs']),
-            'quantity' => fake()->numberBetween(1, 4),
             'notes' => null,
             'supplier_id' => null,
             'code_supplier' => null,
