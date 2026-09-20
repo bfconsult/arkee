@@ -411,7 +411,6 @@ test('a furniture schedule line can be created, updated, and deleted within a pr
     $this->actingAs($this->user)
         ->post(route('projects.schedule-lines.store', $project), [
             'item_id' => $item->id,
-            'row_type' => 'parent',
             'quantity' => 4,
         ])
         ->assertRedirect(route('projects.schedule-lines.index', $project));
@@ -423,7 +422,6 @@ test('a furniture schedule line can be created, updated, and deleted within a pr
     $this->actingAs($this->user)
         ->put(route('projects.schedule-lines.update', [$project, $line]), [
             'item_id' => $item->id,
-            'row_type' => 'parent',
             'quantity' => 6,
         ])
         ->assertRedirect(route('projects.schedule-lines.index', $project));
@@ -442,7 +440,6 @@ test('a schedule line with no quantity given falls back to the column default in
     $this->actingAs($this->user)
         ->post(route('projects.schedule-lines.store', $project), [
             'item_id' => $item->id,
-            'row_type' => 'parent',
         ])
         ->assertRedirect(route('projects.schedule-lines.index', $project));
 

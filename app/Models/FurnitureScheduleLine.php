@@ -9,13 +9,9 @@ class FurnitureScheduleLine extends Model
 {
     use HasFactory;
 
-    const ROW_TYPE_PARENT = 'parent';
-    const ROW_TYPE_SUB = 'sub';
-
     protected $fillable = [
         'project_id',
         'item_id',
-        'row_type',
         'parent_line_id',
         'fabric_supplier_id',
         'fabric_notes',

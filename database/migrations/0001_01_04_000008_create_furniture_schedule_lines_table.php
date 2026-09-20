@@ -12,7 +12,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('project_id')->constrained();
             $table->foreignId('item_id')->constrained('items');
-            $table->enum('row_type', ['parent', 'sub'])->default('parent');
+            // A line with no parent_line_id is a top-level line; setting one
+            // makes this a sub-line under it - no separate type flag needed.
             $table->foreignId('parent_line_id')->nullable()->constrained('furniture_schedule_lines')->nullOnDelete();
             $table->foreignId('fabric_supplier_id')->nullable()->constrained('suppliers')->nullOnDelete();
             $table->text('fabric_notes')->nullable();

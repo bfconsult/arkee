@@ -25,11 +25,6 @@ export default function Index({ project, lines }) {
                             label: 'Item',
                             render: (row) => row.item?.catalogue_no ?? '—',
                         },
-                        {
-                            key: 'row_type',
-                            label: 'Type',
-                            render: (row) => (row.row_type === 'parent' ? 'Parent' : 'Sub'),
-                        },
                         { key: 'quantity', label: 'Qty' },
                         {
                             key: 'required_by',

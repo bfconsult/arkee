@@ -81,7 +81,7 @@ test('furniture schedule lines self-reference for parent/sub rows, and can pick 
     $finish = Finish::factory()->for($material)->create();
 
     $parentLine = FurnitureScheduleLine::factory()->for($project)->create();
-    $subLine = FurnitureScheduleLine::factory()->sub()->for($project)->for($finish)->create([
+    $subLine = FurnitureScheduleLine::factory()->for($project)->for($finish)->create([
         'parent_line_id' => $parentLine->id,
     ]);
 

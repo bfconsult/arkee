@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\FurnitureScheduleLine;
 use App\Models\Item;
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -17,7 +16,6 @@ class FurnitureScheduleLineFactory extends Factory
         return [
             'project_id' => Project::factory(),
             'item_id' => Item::factory(),
-            'row_type' => FurnitureScheduleLine::ROW_TYPE_PARENT,
             'parent_line_id' => null,
             'fabric_supplier_id' => null,
             'fabric_notes' => null,
@@ -31,15 +29,5 @@ class FurnitureScheduleLineFactory extends Factory
             'finish_id' => null,
             'internal_cost_manual' => null,
         ];
-    }
-
-    /**
-     * A Sub Line row - fabric/stain choice lives here, not on the Parent.
-     */
-    public function sub(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'row_type' => FurnitureScheduleLine::ROW_TYPE_SUB,
-        ]);
     }
 }

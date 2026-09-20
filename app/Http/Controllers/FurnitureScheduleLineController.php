@@ -68,7 +68,7 @@ class FurnitureScheduleLineController extends Controller
             'finishes' => Finish::orderBy('name')->get(['id', 'name']),
             'deliveryLocations' => DeliveryLocation::orderBy('name')->get(['id', 'name']),
             'parentLineOptions' => $project->furnitureScheduleLines()
-                ->where('row_type', FurnitureScheduleLine::ROW_TYPE_PARENT)
+                ->whereNull('parent_line_id')
                 ->when($editing, fn ($q) => $q->whereKeyNot($editing->id))
                 ->get(['id', 'quantity', 'item_id']),
         ];
@@ -78,7 +78,6 @@ class FurnitureScheduleLineController extends Controller
     {
         $data = $request->validate([
             'item_id' => 'required|exists:items,id',
-            'row_type' => 'required|in:parent,sub',
             'parent_line_id' => 'nullable|exists:furniture_schedule_lines,id',
             'fabric_supplier_id' => 'nullable|exists:suppliers,id',
             'fabric_notes' => 'nullable|string',

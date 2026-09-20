@@ -11,7 +11,6 @@ export default function Form({ project, line, items, suppliers, finishes, delive
 
     const { data, setData, post, put, processing, errors } = useForm({
         item_id: line?.item_id ?? '',
-        row_type: line?.row_type ?? 'parent',
         parent_line_id: line?.parent_line_id ?? '',
         fabric_supplier_id: line?.fabric_supplier_id ?? '',
         fabric_notes: line?.fabric_notes ?? '',
@@ -60,22 +59,6 @@ export default function Form({ project, line, items, suppliers, finishes, delive
                         </div>
 
                         <div>
-                            <InputLabel htmlFor="row_type" value="Row Type" />
-                            <Select
-                                id="row_type"
-                                className="mt-1 block w-full"
-                                value={data.row_type}
-                                onChange={(e) => setData('row_type', e.target.value)}
-                            >
-                                <option value="parent">Parent</option>
-                                <option value="sub">Sub</option>
-                            </Select>
-                            <InputError message={errors.row_type} className="mt-1" />
-                        </div>
-                    </div>
-
-                    {data.row_type === 'sub' && (
-                        <div>
                             <InputLabel htmlFor="parent_line_id" value="Parent Line" />
                             <Select
                                 id="parent_line_id"
@@ -92,7 +75,7 @@ export default function Form({ project, line, items, suppliers, finishes, delive
                             </Select>
                             <InputError message={errors.parent_line_id} className="mt-1" />
                         </div>
-                    )}
+                    </div>
 
                     <div className="grid grid-cols-3 gap-4">
                         <div>
