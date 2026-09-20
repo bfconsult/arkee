@@ -17,7 +17,7 @@ class FabricComponentFactory extends Factory
         return [
             'furniture_schedule_line_id' => FurnitureScheduleLine::factory(),
             'component_id' => Component::factory()->fabric(),
-            'material_id' => Material::factory(),
+            'material_id' => Material::factory(['is_fabric' => true]),
             'finish_id' => null,
         ];
     }

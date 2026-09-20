@@ -75,6 +75,7 @@ class MaterialController extends Controller
     {
         return $request->validate([
             'name' => 'required|string|max:255',
+            'is_fabric' => 'boolean',
             'supplier_id' => 'nullable|exists:suppliers,id',
             'code_supplier' => 'nullable|string|max:255',
             'unit_cost' => 'nullable|numeric|min:0',

@@ -11,6 +11,7 @@ export default function Form({ material, suppliers }) {
 
     const { data, setData, post, put, processing, errors } = useForm({
         name: material?.name ?? '',
+        is_fabric: material?.is_fabric ?? false,
         supplier_id: material?.supplier_id ?? '',
         code_supplier: material?.code_supplier ?? '',
         unit_cost: material?.unit_cost ?? '',
@@ -39,6 +40,17 @@ export default function Form({ material, suppliers }) {
                             autoFocus
                         />
                         <InputError message={errors.name} className="mt-1" />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <input
+                            id="is_fabric"
+                            type="checkbox"
+                            checked={data.is_fabric}
+                            onChange={(e) => setData('is_fabric', e.target.checked)}
+                            className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                        />
+                        <InputLabel htmlFor="is_fabric" value="This material is Fabric" className="!mb-0" />
                     </div>
 
                     <div>

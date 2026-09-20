@@ -11,6 +11,9 @@ return new class extends Migration
         Schema::create('materials', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            // Only Fabric materials are offered on the Fabric Component
+            // pick list when adding an Item to a Furniture Schedule Line.
+            $table->boolean('is_fabric')->default(false);
             // Nullable - not every material has a single fixed supplier (e.g.
             // timber is often sourced per-component instead, see components).
             $table->foreignId('supplier_id')->nullable()->constrained()->nullOnDelete();

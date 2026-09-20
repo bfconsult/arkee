@@ -11,11 +11,16 @@ class Material extends Model
 
     protected $fillable = [
         'name',
+        'is_fabric',
         'supplier_id',
         'code_supplier',
         'unit_cost',
         'meterage',
         'notes',
+    ];
+
+    protected $casts = [
+        'is_fabric' => 'boolean',
     ];
 
     public function components()

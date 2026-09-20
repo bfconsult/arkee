@@ -199,21 +199,25 @@ test('a material can be created, updated, and deleted (a shared, top-level catal
     $this->actingAs($this->user)
         ->post(route('materials.store'), [
             'name' => 'Linen Fabric',
+            'is_fabric' => true,
             'supplier_id' => $supplier->id,
         ])
         ->assertRedirect();
 
     $material = Material::sole();
     expect($material->supplier_id)->toBe($supplier->id);
+    expect($material->is_fabric)->toBeTrue();
 
     $this->actingAs($this->user)
         ->put(route('materials.update', $material), [
             'name' => 'Linen Fabric',
+            'is_fabric' => false,
             'supplier_id' => $supplier->id,
             'unit_cost' => 42.50,
         ])
         ->assertRedirect(route('materials.index'));
     expect((float) $material->fresh()->unit_cost)->toBe(42.50);
+    expect($material->fresh()->is_fabric)->toBeFalse();
 
     $this->actingAs($this->user)
         ->delete(route('materials.destroy', $material))
@@ -447,12 +451,26 @@ test('a schedule line with no quantity given falls back to the column default in
     expect(FurnitureScheduleLine::sole()->quantity)->toBe(1);
 });
 
+test('the schedule line form only offers Fabric-flagged materials on the fabric component pick list', function () {
+    $project = Project::factory()->create();
+    $fabricMaterial = Material::factory()->create(['name' => 'Linen Fabric', 'is_fabric' => true]);
+    $nonFabricMaterial = Material::factory()->create(['name' => 'Oak Timber', 'is_fabric' => false]);
+
+    $this->actingAs($this->user)
+        ->get(route('projects.schedule-lines.create', $project))
+        ->assertInertia(fn ($page) => $page
+            ->component('ScheduleLines/Form')
+            ->where('materials.0.id', $fabricMaterial->id)
+            ->has('materials', 1)
+        );
+});
+
 test('adding a schedule line for an item with fabric components saves a Material/Finish choice per component', function () {
     $project = Project::factory()->create();
     $item = Item::factory()->create();
-    $material = Material::factory()->create();
+    $material = Material::factory()->create(['is_fabric' => true]);
     $finish = Finish::factory()->for($material)->create();
-    $otherMaterial = Material::factory()->create();
+    $otherMaterial = Material::factory()->create(['is_fabric' => true]);
 
     $upholstery = Component::factory()->for($item)->fabric()->create(['name' => 'Upholstery']);
     $cushion = Component::factory()->for($item)->fabric()->create(['name' => 'Cushion']);

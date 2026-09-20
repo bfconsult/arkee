@@ -67,7 +67,10 @@ class FurnitureScheduleLineController extends Controller
                 'itemCategory',
                 'components' => fn ($query) => $query->where('is_fabric', true)->select(['id', 'item_id', 'name']),
             ])->orderBy('catalogue_no')->get(['id', 'catalogue_no', 'item_category_id']),
-            'materials' => Material::with('finishes:id,material_id,name')->orderBy('name')->get(['id', 'name']),
+            'materials' => Material::where('is_fabric', true)
+                ->with('finishes:id,material_id,name')
+                ->orderBy('name')
+                ->get(['id', 'name']),
         ];
     }
 
@@ -103,7 +106,7 @@ class FurnitureScheduleLineController extends Controller
         $rows = $request->validate([
             'fabric_components' => 'array',
             'fabric_components.*.component_id' => 'required|exists:components,id',
-            'fabric_components.*.material_id' => 'nullable|exists:materials,id',
+            'fabric_components.*.material_id' => 'nullable|exists:materials,id,is_fabric,1',
             'fabric_components.*.finish_id' => 'nullable|exists:finishes,id',
         ])['fabric_components'] ?? [];
 
