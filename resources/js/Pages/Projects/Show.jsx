@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import NeedsFinishesIcon from '@/Components/NeedsFinishesIcon';
+import formatDate from '@/formatDate';
 import { Head, Link } from '@inertiajs/react';
 
 const STATUS_LABELS = {
@@ -84,7 +85,7 @@ export default function Show({ project }) {
                                     </div>
                                     <div className="text-sm text-gray-500">
                                         {STATUS_LABELS[quote.status] ?? quote.status}
-                                        {quote.date && ` · ${quote.date}`}
+                                        {quote.date && ` · ${formatDate(quote.date)}`}
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4 text-sm">

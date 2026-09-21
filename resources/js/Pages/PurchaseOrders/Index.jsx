@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import DataTable from '@/Components/DataTable';
+import formatDate from '@/formatDate';
 import { Head, Link } from '@inertiajs/react';
 
 const STATUS_LABELS = {
@@ -38,7 +39,11 @@ export default function Index({ project, purchaseOrders }) {
                             label: 'Status',
                             render: (row) => STATUS_LABELS[row.order_status] ?? row.order_status,
                         },
-                        { key: 'date_issued', label: 'Date Issued' },
+                        {
+                            key: 'date_issued',
+                            label: 'Date Issued',
+                            render: (row) => formatDate(row.date_issued) ?? '—',
+                        },
                         {
                             key: 'assignee',
                             label: 'Assignee',
