@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Attachment;
 use App\Models\Client;
 use App\Models\Component;
 use App\Models\ComponentFinish;
@@ -582,6 +583,21 @@ test('the furniture schedule view groups its lines by item category, alphabetica
             ->where('groups.1.lines.0.id', $tableLine->id)
             ->where('groups.2.category', 'Uncategorised')
             ->where('groups.2.lines.0.id', $uncategorisedLine->id)
+        );
+});
+
+test('the furniture schedule view includes each item\'s images', function () {
+    $quote = Quote::factory()->create();
+    $item = Item::factory()->create();
+    $attachment = Attachment::factory()->for($item, 'entity')->create(['kind' => Attachment::KIND_IMAGE]);
+    $line = FurnitureScheduleLine::factory()->for($quote)->for($item, 'item')->create();
+
+    $this->actingAs($this->user)
+        ->get(route('quotes.schedule-lines.view', $quote))
+        ->assertInertia(fn ($page) => $page
+            ->component('ScheduleLines/View')
+            ->where('groups.0.lines.0.id', $line->id)
+            ->where('groups.0.lines.0.item.attachments.0.id', $attachment->id)
         );
 });
 

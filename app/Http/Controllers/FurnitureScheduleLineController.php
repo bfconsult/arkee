@@ -32,6 +32,7 @@ class FurnitureScheduleLineController extends Controller
                 'item.itemCategory',
                 'item.packagingType',
                 'item.supplier',
+                'item.attachments',
                 'item.components.material.supplier',
                 'item.components.supplier',
                 'componentFinishes.component',

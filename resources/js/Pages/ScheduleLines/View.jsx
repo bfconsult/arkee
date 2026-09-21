@@ -21,6 +21,7 @@ function ItemView({ quote, line }) {
     const finishesByComponent = Object.fromEntries(
         (line.component_finishes ?? []).map((cf) => [cf.component_id, cf])
     );
+    const images = (item.attachments ?? []).filter((a) => a.kind === 'image');
 
     return (
         <div className="bg-white rounded-lg shadow p-6">
@@ -33,6 +34,19 @@ function ItemView({ quote, line }) {
                     Edit →
                 </Link>
             </div>
+
+            {images.length > 0 && (
+                <div className="flex flex-wrap gap-3 mb-4">
+                    {images.map((image) => (
+                        <img
+                            key={image.id}
+                            src={image.file_url}
+                            alt=""
+                            className="w-28 h-28 object-cover rounded-md border border-gray-200"
+                        />
+                    ))}
+                </div>
+            )}
 
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {field('Catalogue No.', item.catalogue_no)}
