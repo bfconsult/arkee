@@ -6,10 +6,10 @@ import SiteNotice from '@/Components/SiteNotice';
 const TASK_NAV_ITEMS = [
     { label: 'Quotes', route: 'quotes.index' },
     { label: 'Projects', route: 'projects.index' },
+    { label: 'Clients', route: 'clients.index' },
 ];
 
 const DATA_NAV_ITEMS = [
-    { label: 'Clients', route: 'clients.index' },
     { label: 'Suppliers', route: 'suppliers.index' },
     { label: 'Delivery Locations', route: 'delivery-locations.index' },
     { label: 'Packaging Types', route: 'packaging-types.index' },
