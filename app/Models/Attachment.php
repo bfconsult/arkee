@@ -37,18 +37,18 @@ class Attachment extends Model
         return $this->morphTo('entity', 'entity_type', 'entity_id');
     }
 
+    /**
+     * Unlike User::avatar_url, this is never signed - the bucket behind the
+     * s3 disk is public-read by design, since attachment links need to stay
+     * valid indefinitely (emailed quotes, exported PDFs, long-idle tabs),
+     * not just for the ~1hr a signed URL would last.
+     */
     public function getFileUrlAttribute(): ?string
     {
         if (! $this->url) {
             return null;
         }
 
-        $disk = Storage::disk(config('filesystems.default'));
-
-        // S3 buckets aren't necessarily public-readable, so use a signed URL
-        // rather than assuming a public ACL/bucket policy is in place.
-        return config('filesystems.default') === 's3'
-            ? $disk->temporaryUrl($this->url, now()->addHour())
-            : $disk->url($this->url);
+        return Storage::disk(config('filesystems.default'))->url($this->url);
     }
 }
