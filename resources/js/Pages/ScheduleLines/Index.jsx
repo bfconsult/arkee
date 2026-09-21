@@ -10,12 +10,20 @@ export default function Index({ quote, lines }) {
         <AuthenticatedLayout title={`Furniture Schedule — ${projectLabel} (${quote.quote_number ?? `Quote #${quote.id}`})`}>
             <Head title="Furniture Schedule" />
 
-            <Link
-                href={route('projects.quotes.edit', [quote.project_id, quote.id])}
-                className="text-sm text-green-700 hover:underline"
-            >
-                ← Back to Quote
-            </Link>
+            <div className="flex items-center justify-between">
+                <Link
+                    href={route('projects.quotes.edit', [quote.project_id, quote.id])}
+                    className="text-sm text-green-700 hover:underline"
+                >
+                    ← Back to Quote
+                </Link>
+                <Link
+                    href={route('quotes.schedule-lines.view', quote.id)}
+                    className="text-sm text-green-700 hover:underline"
+                >
+                    View Schedule →
+                </Link>
+            </div>
 
             <div className="mt-4">
                 <DataTable

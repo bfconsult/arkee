@@ -558,6 +558,33 @@ test('adding a schedule line for an item with fabric components saves a Material
     expect($componentFinish->finish_id)->toBeNull();
 });
 
+test('the furniture schedule view groups its lines by item category, alphabetically', function () {
+    $quote = Quote::factory()->create();
+    $sofaCategory = ItemCategory::factory()->create(['name' => 'Sofas']);
+    $tableCategory = ItemCategory::factory()->create(['name' => 'Tables']);
+
+    $sofaItem = Item::factory()->for($sofaCategory, 'itemCategory')->create();
+    $tableItem = Item::factory()->for($tableCategory, 'itemCategory')->create();
+    $uncategorisedItem = Item::factory()->create(['item_category_id' => null]);
+
+    $sofaLine = FurnitureScheduleLine::factory()->for($quote)->for($sofaItem, 'item')->create();
+    $tableLine = FurnitureScheduleLine::factory()->for($quote)->for($tableItem, 'item')->create();
+    $uncategorisedLine = FurnitureScheduleLine::factory()->for($quote)->for($uncategorisedItem, 'item')->create();
+
+    $this->actingAs($this->user)
+        ->get(route('quotes.schedule-lines.view', $quote))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('ScheduleLines/View')
+            ->where('groups.0.category', 'Sofas')
+            ->where('groups.0.lines.0.id', $sofaLine->id)
+            ->where('groups.1.category', 'Tables')
+            ->where('groups.1.lines.0.id', $tableLine->id)
+            ->where('groups.2.category', 'Uncategorised')
+            ->where('groups.2.lines.0.id', $uncategorisedLine->id)
+        );
+});
+
 test('a non-fabric component always uses its own fixed Material - only its Finish is chosen on the schedule line', function () {
     $quote = Quote::factory()->create();
     $item = Item::factory()->create();

@@ -25,6 +25,36 @@ class FurnitureScheduleLineController extends Controller
         ]);
     }
 
+    public function view(Quote $quote)
+    {
+        $lines = $quote->furnitureScheduleLines()
+            ->with([
+                'item.itemCategory',
+                'item.packagingType',
+                'item.supplier',
+                'item.components.material.supplier',
+                'item.components.supplier',
+                'componentFinishes.component',
+                'componentFinishes.material',
+                'componentFinishes.finish',
+            ])
+            ->get();
+
+        $groups = $lines
+            ->groupBy(fn (FurnitureScheduleLine $line) => $line->item->itemCategory->name ?? 'Uncategorised')
+            ->sortKeys()
+            ->map(fn ($groupLines, $category) => [
+                'category' => $category,
+                'lines' => $groupLines->values(),
+            ])
+            ->values();
+
+        return Inertia::render('ScheduleLines/View', [
+            'quote' => $quote->load('project'),
+            'groups' => $groups,
+        ]);
+    }
+
     public function create(Quote $quote)
     {
         return Inertia::render('ScheduleLines/Form', [
