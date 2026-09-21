@@ -50,13 +50,13 @@ export default function ItemImages({ item }) {
             {item.attachments.length === 0 ? (
                 <p className="text-gray-500 text-sm">No images yet.</p>
             ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                <div className="flex flex-wrap gap-4">
                     {item.attachments.map((attachment) => (
                         <div key={attachment.id} className="relative group">
                             <img
                                 src={attachment.file_url}
                                 alt=""
-                                className="w-full h-32 object-cover rounded-md border border-gray-200"
+                                className="h-32 w-auto max-w-full object-contain rounded-md border border-gray-200 bg-gray-50"
                             />
                             <button
                                 type="button"

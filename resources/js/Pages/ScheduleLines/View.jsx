@@ -42,7 +42,7 @@ function ItemView({ quote, line }) {
                             key={image.id}
                             src={image.file_url}
                             alt=""
-                            className="w-28 h-28 object-cover rounded-md border border-gray-200"
+                            className="h-28 w-auto max-w-full object-contain rounded-md border border-gray-200 bg-gray-50"
                         />
                     ))}
                 </div>
