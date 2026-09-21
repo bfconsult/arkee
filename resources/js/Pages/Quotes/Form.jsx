@@ -13,8 +13,7 @@ export default function Form({ project, quote }) {
 
     const { data, setData, post, put, processing, errors } = useForm({
         quote_number: quote?.quote_number ?? '',
-        version: quote?.version ?? 1,
-        date: quote?.date ?? '',
+        date: quote?.date ?? new Date().toISOString().slice(0, 10),
         status: quote?.status ?? 'quote',
     });
 
@@ -31,31 +30,16 @@ export default function Form({ project, quote }) {
 
             <div className="max-w-lg bg-white rounded-lg shadow p-6">
                 <form onSubmit={submit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <InputLabel htmlFor="quote_number" value="Quote No." />
-                            <TextInput
-                                id="quote_number"
-                                className="mt-1 block w-full"
-                                value={data.quote_number}
-                                onChange={(e) => setData('quote_number', e.target.value)}
-                                autoFocus
-                            />
-                            <InputError message={errors.quote_number} className="mt-1" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="version" value="Version" />
-                            <TextInput
-                                id="version"
-                                type="number"
-                                min="1"
-                                className="mt-1 block w-full"
-                                value={data.version}
-                                onChange={(e) => setData('version', e.target.value)}
-                            />
-                            <InputError message={errors.version} className="mt-1" />
-                        </div>
+                    <div>
+                        <InputLabel htmlFor="quote_number" value="Quote No." />
+                        <TextInput
+                            id="quote_number"
+                            className="mt-1 block w-full"
+                            value={data.quote_number}
+                            onChange={(e) => setData('quote_number', e.target.value)}
+                            autoFocus
+                        />
+                        <InputError message={errors.quote_number} className="mt-1" />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
