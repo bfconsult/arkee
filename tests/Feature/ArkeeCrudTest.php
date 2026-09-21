@@ -119,6 +119,7 @@ test('an item can be created, updated, and deleted', function () {
 
     $this->actingAs($this->user)
         ->post(route('items.store'), [
+            'name' => 'Milano Sofa',
             'catalogue_no' => 'CAT-001',
             'item_category_id' => $sofaCategory->id,
             'supplier_id' => $supplier->id,
@@ -126,6 +127,7 @@ test('an item can be created, updated, and deleted', function () {
         ->assertRedirect();
 
     $item = Item::sole();
+    expect($item->name)->toBe('Milano Sofa');
     expect($item->catalogue_no)->toBe('CAT-001');
     expect($item->supplier_id)->toBe($supplier->id);
 

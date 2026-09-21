@@ -16,6 +16,11 @@ export default function Index({ items }) {
                 destroyRoute="items.destroy"
                 emptyMessage="No items yet."
                 columns={[
+                    {
+                        key: 'name',
+                        label: 'Name',
+                        render: (row) => row.name ?? '—',
+                    },
                     { key: 'catalogue_no', label: 'Catalogue No.' },
                     {
                         key: 'item_category',

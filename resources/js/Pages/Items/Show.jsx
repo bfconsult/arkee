@@ -11,7 +11,7 @@ function field(label, value) {
 }
 
 export default function Show({ item }) {
-    const title = item.catalogue_no ?? item.item_category?.name ?? 'Item';
+    const title = item.name ?? item.catalogue_no ?? item.item_category?.name ?? 'Item';
     const dimensions =
         item.height_mm || item.width_mm || item.depth_mm
             ? `${item.height_mm ?? '—'} x ${item.width_mm ?? '—'} x ${item.depth_mm ?? '—'} mm`

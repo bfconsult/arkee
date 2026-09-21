@@ -7,9 +7,10 @@ import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Form({ item, itemCategories, packagingTypes, suppliers }) {
     const isNew = !item;
-    const title = isNew ? 'Add Item' : `Edit ${item.catalogue_no ?? 'Item'}`;
+    const title = isNew ? 'Add Item' : `Edit ${item.name ?? item.catalogue_no ?? 'Item'}`;
 
     const { data, setData, post, put, processing, errors } = useForm({
+        name: item?.name ?? '',
         catalogue_no: item?.catalogue_no ?? '',
         item_category_id: item?.item_category_id ?? '',
         height_mm: item?.height_mm ?? '',
@@ -31,6 +32,18 @@ export default function Form({ item, itemCategories, packagingTypes, suppliers }
 
             <div className="max-w-2xl bg-white rounded-lg shadow p-6">
                 <form onSubmit={submit} className="space-y-4">
+                    <div>
+                        <InputLabel htmlFor="name" value="Name" />
+                        <TextInput
+                            id="name"
+                            className="mt-1 block w-full"
+                            value={data.name}
+                            onChange={(e) => setData('name', e.target.value)}
+                            autoFocus
+                        />
+                        <InputError message={errors.name} className="mt-1" />
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <InputLabel htmlFor="catalogue_no" value="Catalogue No." />
@@ -39,7 +52,6 @@ export default function Form({ item, itemCategories, packagingTypes, suppliers }
                                 className="mt-1 block w-full"
                                 value={data.catalogue_no}
                                 onChange={(e) => setData('catalogue_no', e.target.value)}
-                                autoFocus
                             />
                             <InputError message={errors.catalogue_no} className="mt-1" />
                         </div>

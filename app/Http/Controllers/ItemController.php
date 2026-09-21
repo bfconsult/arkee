@@ -84,6 +84,7 @@ class ItemController extends Controller
     private function validated(Request $request): array
     {
         return $request->validate([
+            'name' => 'nullable|string|max:255',
             'catalogue_no' => 'nullable|string|max:255',
             'item_category_id' => 'nullable|exists:item_categories,id',
             'height_mm' => 'nullable|integer|min:0',
