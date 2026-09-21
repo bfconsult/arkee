@@ -46,29 +46,35 @@ export default function Form({ material, suppliers }) {
                             id="is_fabric"
                             type="checkbox"
                             checked={data.is_fabric}
-                            onChange={(e) => setData('is_fabric', e.target.checked)}
+                            onChange={(e) => setData((prevData) => ({
+                                ...prevData,
+                                is_fabric: e.target.checked,
+                                supplier_id: e.target.checked ? prevData.supplier_id : '',
+                            }))}
                             className="rounded border-gray-300 text-green-600 focus:ring-green-500"
                         />
                         <InputLabel htmlFor="is_fabric" value="This material is Fabric" className="!mb-0" />
                     </div>
 
-                    <div>
-                        <InputLabel htmlFor="supplier_id" value="Supplier" />
-                        <Select
-                            id="supplier_id"
-                            className="mt-1 block w-full"
-                            value={data.supplier_id}
-                            onChange={(e) => setData('supplier_id', e.target.value)}
-                        >
-                            <option value="">— None —</option>
-                            {suppliers.map((s) => (
-                                <option key={s.id} value={s.id}>
-                                    {s.name}
-                                </option>
-                            ))}
-                        </Select>
-                        <InputError message={errors.supplier_id} className="mt-1" />
-                    </div>
+                    {data.is_fabric && (
+                        <div>
+                            <InputLabel htmlFor="supplier_id" value="Supplier" />
+                            <Select
+                                id="supplier_id"
+                                className="mt-1 block w-full"
+                                value={data.supplier_id}
+                                onChange={(e) => setData('supplier_id', e.target.value)}
+                            >
+                                <option value="">— None —</option>
+                                {suppliers.map((s) => (
+                                    <option key={s.id} value={s.id}>
+                                        {s.name}
+                                    </option>
+                                ))}
+                            </Select>
+                            <InputError message={errors.supplier_id} className="mt-1" />
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
