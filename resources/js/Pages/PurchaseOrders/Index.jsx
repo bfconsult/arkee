@@ -11,7 +11,7 @@ const STATUS_LABELS = {
 
 export default function Index({ project, purchaseOrders }) {
     return (
-        <AuthenticatedLayout title={`Purchase Orders — ${project.project_descriptor ?? project.quote_number ?? 'Project'}`}>
+        <AuthenticatedLayout title={`Purchase Orders — ${project.project_descriptor ?? 'Project'}`}>
             <Head title="Purchase Orders" />
 
             <Link href={route('projects.show', project.id)} className="text-sm text-green-700 hover:underline">

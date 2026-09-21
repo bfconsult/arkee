@@ -6,64 +6,64 @@ use App\Models\Component;
 use App\Models\FurnitureScheduleLine;
 use App\Models\Item;
 use App\Models\Material;
-use App\Models\Project;
+use App\Models\Quote;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class FurnitureScheduleLineController extends Controller
 {
-    public function index(Project $project)
+    public function index(Quote $quote)
     {
-        $lines = $project->furnitureScheduleLines()
+        $lines = $quote->furnitureScheduleLines()
             ->with(['item.components', 'componentFinishes'])
             ->get()
             ->each(fn (FurnitureScheduleLine $line) => $line->needs_finishes = $line->needsFinishes());
 
         return Inertia::render('ScheduleLines/Index', [
-            'project' => $project,
+            'quote' => $quote->load('project'),
             'lines' => $lines,
         ]);
     }
 
-    public function create(Project $project)
+    public function create(Quote $quote)
     {
         return Inertia::render('ScheduleLines/Form', [
-            'project' => $project,
+            'quote' => $quote->load('project'),
             'line' => null,
             ...$this->options(),
         ]);
     }
 
-    public function store(Request $request, Project $project)
+    public function store(Request $request, Quote $quote)
     {
-        $line = $project->furnitureScheduleLines()->create($this->validated($request));
+        $line = $quote->furnitureScheduleLines()->create($this->validated($request));
         $this->syncComponentFinishes($line, $request);
 
-        return redirect()->route('projects.schedule-lines.index', $project)->with('success', 'Schedule line added.');
+        return redirect()->route('quotes.schedule-lines.index', $quote)->with('success', 'Schedule line added.');
     }
 
-    public function edit(Project $project, FurnitureScheduleLine $scheduleLine)
+    public function edit(Quote $quote, FurnitureScheduleLine $scheduleLine)
     {
         return Inertia::render('ScheduleLines/Form', [
-            'project' => $project,
+            'quote' => $quote->load('project'),
             'line' => $scheduleLine->load('componentFinishes'),
             ...$this->options(),
         ]);
     }
 
-    public function update(Request $request, Project $project, FurnitureScheduleLine $scheduleLine)
+    public function update(Request $request, Quote $quote, FurnitureScheduleLine $scheduleLine)
     {
         $scheduleLine->update($this->validated($request));
         $this->syncComponentFinishes($scheduleLine, $request);
 
-        return redirect()->route('projects.schedule-lines.index', $project)->with('success', 'Schedule line updated.');
+        return redirect()->route('quotes.schedule-lines.index', $quote)->with('success', 'Schedule line updated.');
     }
 
-    public function destroy(Project $project, FurnitureScheduleLine $scheduleLine)
+    public function destroy(Quote $quote, FurnitureScheduleLine $scheduleLine)
     {
         $scheduleLine->delete();
 
-        return redirect()->route('projects.schedule-lines.index', $project)->with('success', 'Schedule line deleted.');
+        return redirect()->route('quotes.schedule-lines.index', $quote)->with('success', 'Schedule line deleted.');
     }
 
     private function options(): array

@@ -10,7 +10,7 @@ class FurnitureScheduleLine extends Model
     use HasFactory;
 
     protected $fillable = [
-        'project_id',
+        'quote_id',
         'item_id',
         'fabric_notes',
         'quantity',
@@ -26,9 +26,9 @@ class FurnitureScheduleLine extends Model
         'include_on_po' => 'boolean',
     ];
 
-    public function project()
+    public function quote()
     {
-        return $this->belongsTo(Project::class);
+        return $this->belongsTo(Quote::class);
     }
 
     public function item()

@@ -13,15 +13,6 @@ export default function Index({ quotesByStatus }) {
         <AuthenticatedLayout title="Quotes">
             <Head title="Quotes" />
 
-            <div className="flex justify-end mb-4">
-                <Link
-                    href={route('projects.create')}
-                    className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700"
-                >
-                    Add Quote
-                </Link>
-            </div>
-
             <div className="space-y-6">
                 {STATUS_SECTIONS.map((section) => {
                     const quotes = quotesByStatus[section.key] ?? [];
@@ -37,25 +28,25 @@ export default function Index({ quotesByStatus }) {
                                 <p className="text-sm text-gray-500 px-4 py-6">No {section.label.toLowerCase()} quotes.</p>
                             ) : (
                                 <div className="divide-y divide-gray-100">
-                                    {quotes.map((project) => (
-                                        <div key={project.id} className="px-4 py-3 flex items-center justify-between">
+                                    {quotes.map((quote) => (
+                                        <div key={quote.id} className="px-4 py-3 flex items-center justify-between">
                                             <div>
                                                 <div className="font-medium text-gray-900">
-                                                    {project.project_descriptor ?? project.quote_number ?? `Project #${project.id}`}
+                                                    {quote.project?.project_descriptor ?? `Project #${quote.project_id}`}
                                                 </div>
                                                 <div className="text-xs text-gray-500">
-                                                    {project.quote_number ?? '—'} · {project.client?.company_name ?? '—'}
+                                                    {quote.quote_number ?? '—'} · {quote.project?.client?.company_name ?? '—'}
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-4 text-sm">
                                                 <Link
-                                                    href={route('projects.schedule-lines.index', project.id)}
+                                                    href={route('quotes.schedule-lines.index', quote.id)}
                                                     className="text-green-700 hover:underline"
                                                 >
                                                     Furniture Items
                                                 </Link>
                                                 <Link
-                                                    href={route('projects.edit', project.id)}
+                                                    href={route('projects.quotes.edit', [quote.project_id, quote.id])}
                                                     className="text-gray-600 hover:text-gray-900"
                                                 >
                                                     Edit

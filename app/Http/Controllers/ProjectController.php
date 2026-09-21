@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
-use App\Models\FurnitureScheduleLine;
 use App\Models\Project;
+use App\Models\Quote;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,7 +14,7 @@ class ProjectController extends Controller
     public function index()
     {
         return Inertia::render('Projects/Index', [
-            'projects' => Project::with(['client', 'pmUser'])->orderByDesc('date')->get(),
+            'projects' => Project::with(['client', 'pmUser'])->withCount('quotes')->orderBy('project_descriptor')->get(),
         ]);
     }
 
@@ -23,14 +23,18 @@ class ProjectController extends Controller
         $project->load([
             'client',
             'pmUser',
-            'furnitureScheduleLines.item.components',
-            'furnitureScheduleLines.componentFinishes',
+            'quotes' => fn ($query) => $query->orderByDesc('date'),
+            'quotes.furnitureScheduleLines.item.components',
+            'quotes.furnitureScheduleLines.componentFinishes',
             'purchaseOrders.supplier',
         ]);
 
-        $project->furnitureScheduleLines->each(
-            fn (FurnitureScheduleLine $line) => $line->needs_finishes = $line->needsFinishes()
-        );
+        $project->quotes->each(function (Quote $quote) {
+            $quote->furnitureScheduleLines->each(
+                fn ($line) => $line->needs_finishes = $line->needsFinishes()
+            );
+            $quote->needs_finishes = $quote->furnitureScheduleLines->contains(fn ($line) => $line->needs_finishes);
+        });
 
         return Inertia::render('Projects/Show', [
             'project' => $project,
@@ -49,7 +53,7 @@ class ProjectController extends Controller
     {
         $project = Project::create($this->validated($request));
 
-        return redirect()->route('projects.edit', $project)->with('success', 'Project added.');
+        return redirect()->route('projects.show', $project)->with('success', 'Project added.');
     }
 
     public function edit(Project $project)
@@ -85,13 +89,9 @@ class ProjectController extends Controller
     private function validated(Request $request): array
     {
         return $request->validate([
-            'quote_number' => 'nullable|string|max:255',
             'client_id' => 'required|exists:clients,id',
             'pm_user_id' => 'required|exists:users,id',
             'project_descriptor' => 'nullable|string|max:255',
-            'version' => 'nullable|integer|min:1',
-            'date' => 'nullable|date',
-            'status' => 'required|in:quote,complete,approved,cancelled',
             'site_name' => 'nullable|string|max:255',
             'site_address' => 'nullable|string|max:255',
             'site_contact_name' => 'nullable|string|max:255',

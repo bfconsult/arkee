@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Item;
-use App\Models\Project;
+use App\Models\Quote;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -14,7 +14,7 @@ class FurnitureScheduleLineFactory extends Factory
     public function definition(): array
     {
         return [
-            'project_id' => Project::factory(),
+            'quote_id' => Quote::factory(),
             'item_id' => Item::factory(),
             'fabric_notes' => null,
             'quantity' => fake()->numberBetween(1, 6),

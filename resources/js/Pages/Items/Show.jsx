@@ -159,10 +159,10 @@ export default function Show({ item }) {
                                 <tr key={line.id}>
                                     <td className="px-2 py-2">
                                         <Link
-                                            href={route('projects.schedule-lines.index', line.project_id)}
+                                            href={route('quotes.schedule-lines.index', line.quote_id)}
                                             className="text-green-700 hover:underline"
                                         >
-                                            {line.project?.project_descriptor ?? line.project?.quote_number ?? `Project #${line.project_id}`}
+                                            {line.quote?.project?.project_descriptor ?? `Project #${line.quote?.project_id}`}
                                         </Link>
                                     </td>
                                     <td className="px-2 py-2 text-gray-900">{line.quantity}</td>

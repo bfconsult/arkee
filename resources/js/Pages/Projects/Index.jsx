@@ -2,13 +2,6 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import DataTable from '@/Components/DataTable';
 import { Head } from '@inertiajs/react';
 
-const STATUS_LABELS = {
-    quote: 'Quote',
-    complete: 'Complete',
-    approved: 'Approved',
-    cancelled: 'Cancelled',
-};
-
 export default function Index({ projects }) {
     return (
         <AuthenticatedLayout title="Projects">
@@ -23,24 +16,18 @@ export default function Index({ projects }) {
                 destroyRoute="projects.destroy"
                 emptyMessage="No projects yet."
                 columns={[
-                    { key: 'quote_number', label: 'Quote No.' },
+                    { key: 'project_descriptor', label: 'Descriptor' },
                     {
                         key: 'client',
                         label: 'Client',
                         render: (row) => row.client?.company_name ?? '—',
                     },
-                    { key: 'project_descriptor', label: 'Descriptor' },
-                    {
-                        key: 'status',
-                        label: 'Status',
-                        render: (row) => STATUS_LABELS[row.status] ?? row.status,
-                    },
-                    { key: 'date', label: 'Date' },
                     {
                         key: 'pm_user',
                         label: 'PM',
                         render: (row) => row.pm_user?.name ?? '—',
                     },
+                    { key: 'quotes_count', label: 'Quotes' },
                 ]}
             />
         </AuthenticatedLayout>

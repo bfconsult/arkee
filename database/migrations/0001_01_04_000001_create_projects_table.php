@@ -10,17 +10,11 @@ return new class extends Migration
     {
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
-            // Auto-built per the doc (client + PM initials + sequence, etc.)
-            // - computed in the application layer, just stored here.
-            $table->string('quote_number')->nullable();
             $table->foreignId('client_id')->constrained();
             $table->foreignId('pm_user_id')->constrained('users');
             $table->string('project_descriptor')->nullable();
-            $table->unsignedInteger('version')->default(1);
-            $table->date('date')->nullable();
-            // A Project's status doubles as its Quote status - see the
-            // Quotes task, which lists Projects grouped by this column.
-            $table->enum('status', ['quote', 'complete', 'approved', 'cancelled'])->default('quote');
+            // quote_number/version/date/status live on the quotes table now -
+            // a Project can have several Quotes, see create_quotes_table.
             $table->string('site_name')->nullable();
             $table->string('site_address')->nullable();
             $table->string('site_contact_name')->nullable();

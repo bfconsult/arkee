@@ -3,22 +3,27 @@ import DataTable from '@/Components/DataTable';
 import NeedsFinishesIcon from '@/Components/NeedsFinishesIcon';
 import { Head, Link } from '@inertiajs/react';
 
-export default function Index({ project, lines }) {
+export default function Index({ quote, lines }) {
+    const projectLabel = quote.project?.project_descriptor ?? 'Project';
+
     return (
-        <AuthenticatedLayout title={`Furniture Schedule — ${project.project_descriptor ?? project.quote_number ?? 'Project'}`}>
+        <AuthenticatedLayout title={`Furniture Schedule — ${projectLabel} (${quote.quote_number ?? `Quote #${quote.id}`})`}>
             <Head title="Furniture Schedule" />
 
-            <Link href={route('projects.show', project.id)} className="text-sm text-green-700 hover:underline">
-                ← Back to Project
+            <Link
+                href={route('projects.quotes.edit', [quote.project_id, quote.id])}
+                className="text-sm text-green-700 hover:underline"
+            >
+                ← Back to Quote
             </Link>
 
             <div className="mt-4">
                 <DataTable
                     rows={lines}
-                    addRoute={{ name: 'projects.schedule-lines.create', params: project.id }}
+                    addRoute={{ name: 'quotes.schedule-lines.create', params: quote.id }}
                     addLabel="Add Schedule Line"
-                    editRoute={{ name: 'projects.schedule-lines.edit', params: [project.id] }}
-                    destroyRoute={{ name: 'projects.schedule-lines.destroy', params: [project.id] }}
+                    editRoute={{ name: 'quotes.schedule-lines.edit', params: [quote.id] }}
+                    destroyRoute={{ name: 'quotes.schedule-lines.destroy', params: [quote.id] }}
                     emptyMessage="No schedule lines yet."
                     columns={[
                         {

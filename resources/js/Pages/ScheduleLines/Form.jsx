@@ -5,7 +5,7 @@ import Select from '@/Components/Select';
 import InputError from '@/Components/InputError';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Form({ project, line, items, materials }) {
+export default function Form({ quote, line, items, materials }) {
     const isNew = !line;
     const title = isNew ? 'Add Schedule Line' : 'Edit Schedule Line';
 
@@ -69,8 +69,8 @@ export default function Form({ project, line, items, materials }) {
     const submit = (e) => {
         e.preventDefault();
         isNew
-            ? post(route('projects.schedule-lines.store', project.id))
-            : put(route('projects.schedule-lines.update', [project.id, line.id]));
+            ? post(route('quotes.schedule-lines.store', quote.id))
+            : put(route('quotes.schedule-lines.update', [quote.id, line.id]));
     };
 
     return (
@@ -262,7 +262,7 @@ export default function Form({ project, line, items, materials }) {
 
                     <div className="flex justify-end gap-4">
                         <Link
-                            href={route('projects.schedule-lines.index', project.id)}
+                            href={route('quotes.schedule-lines.index', quote.id)}
                             className="px-4 py-2 text-gray-700 hover:text-gray-900"
                         >
                             Cancel

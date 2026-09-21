@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('furniture_schedule_lines', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('project_id')->constrained();
+            $table->foreignId('quote_id')->constrained()->cascadeOnDelete();
             $table->foreignId('item_id')->constrained('items');
             $table->text('fabric_notes')->nullable();
             $table->unsignedInteger('quantity')->default(1);

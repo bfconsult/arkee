@@ -13,6 +13,7 @@ use App\Models\Material;
 use App\Models\PackagingType;
 use App\Models\Project;
 use App\Models\PurchaseOrder;
+use App\Models\Quote;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -67,7 +68,7 @@ class DatabaseSeeder extends Seeder
         // one - skip them until someone has registered (they'll bootstrap as
         // admin) rather than crashing or seeding a throwaway user.
         if ($pmUsers->isEmpty()) {
-            $this->command?->warn('No users yet - skipping Projects/Schedule Lines/Purchase Orders. Register an account, then re-run db:seed to also get those.');
+            $this->command?->warn('No users yet - skipping Projects/Quotes/Schedule Lines/Purchase Orders. Register an account, then re-run db:seed to also get those.');
 
             return;
         }
@@ -81,10 +82,16 @@ class DatabaseSeeder extends Seeder
                 'pm_user_id' => fn () => $pmUsers->random()->id,
             ])
             ->each(function (Project $project) use ($items, $suppliers) {
-                FurnitureScheduleLine::factory()
-                    ->count(rand(3, 6))
+                Quote::factory()
+                    ->count(rand(1, 3))
                     ->for($project)
-                    ->create(['item_id' => fn () => $items->random()->id]);
+                    ->create()
+                    ->each(function (Quote $quote) use ($items) {
+                        FurnitureScheduleLine::factory()
+                            ->count(rand(3, 6))
+                            ->for($quote)
+                            ->create(['item_id' => fn () => $items->random()->id]);
+                    });
 
                 PurchaseOrder::factory()
                     ->count(rand(1, 3))

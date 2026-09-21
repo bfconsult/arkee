@@ -26,7 +26,7 @@ function field(label, value) {
 }
 
 export default function Show({ project }) {
-    const title = project.project_descriptor ?? project.quote_number ?? 'Project';
+    const title = project.project_descriptor ?? 'Project';
 
     return (
         <AuthenticatedLayout title={title}>
@@ -46,13 +46,9 @@ export default function Show({ project }) {
 
             <div className="bg-white rounded-lg shadow p-6 mb-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">{title}</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {field('Quote No.', project.quote_number)}
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {field('Client', project.client?.company_name)}
                     {field('Project Manager', project.pm_user?.name)}
-                    {field('Status', STATUS_LABELS[project.status] ?? project.status)}
-                    {field('Version', project.version)}
-                    {field('Date', project.date)}
                 </div>
                 {(project.site_name || project.site_address || project.site_contact_name) && (
                     <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -65,35 +61,46 @@ export default function Show({ project }) {
 
             <div className="bg-white rounded-lg shadow p-6 mb-6">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold text-gray-900">Furniture Schedule</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">Quotes</h2>
                     <Link
-                        href={route('projects.schedule-lines.create', project.id)}
+                        href={route('projects.quotes.create', project.id)}
                         className="px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700"
                     >
-                        Add Schedule Line
+                        Add Quote
                     </Link>
                 </div>
 
-                {project.furniture_schedule_lines.length === 0 ? (
-                    <p className="text-gray-500 text-sm">No schedule lines yet.</p>
+                {project.quotes.length === 0 ? (
+                    <p className="text-gray-500 text-sm">No quotes yet.</p>
                 ) : (
                     <div className="divide-y divide-gray-100">
-                        {project.furniture_schedule_lines.map((line) => (
-                            <div key={line.id} className="py-3 first:pt-0 last:pb-0 flex justify-between items-start">
+                        {project.quotes.map((quote) => (
+                            <div key={quote.id} className="py-3 first:pt-0 last:pb-0 flex justify-between items-start">
                                 <div>
                                     <div className="font-medium text-gray-900 flex items-center gap-1.5">
-                                        {line.item?.catalogue_no ?? `Item #${line.item_id}`}
-                                        <span className="text-gray-500 font-normal"> × {line.quantity}</span>
-                                        {line.needs_finishes && <NeedsFinishesIcon />}
+                                        {quote.quote_number ?? `Quote #${quote.id}`}
+                                        <span className="text-gray-500 font-normal"> v{quote.version}</span>
+                                        {quote.needs_finishes && <NeedsFinishesIcon />}
                                     </div>
-                                    {line.include_on_po && <div className="text-sm text-gray-500">On Purchase Order</div>}
+                                    <div className="text-sm text-gray-500">
+                                        {STATUS_LABELS[quote.status] ?? quote.status}
+                                        {quote.date && ` · ${quote.date}`}
+                                    </div>
                                 </div>
-                                <Link
-                                    href={route('projects.schedule-lines.edit', [project.id, line.id])}
-                                    className="text-sm text-green-700 hover:text-green-900"
-                                >
-                                    Edit
-                                </Link>
+                                <div className="flex items-center gap-4 text-sm">
+                                    <Link
+                                        href={route('quotes.schedule-lines.index', quote.id)}
+                                        className="text-green-700 hover:underline"
+                                    >
+                                        Furniture Schedule
+                                    </Link>
+                                    <Link
+                                        href={route('projects.quotes.edit', [project.id, quote.id])}
+                                        className="text-green-700 hover:text-green-900"
+                                    >
+                                        Edit
+                                    </Link>
+                                </div>
                             </div>
                         ))}
                     </div>

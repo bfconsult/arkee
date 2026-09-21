@@ -9,6 +9,7 @@ use App\Models\Item;
 use App\Models\Material;
 use App\Models\Project;
 use App\Models\PurchaseOrder;
+use App\Models\Quote;
 use App\Models\Supplier;
 use App\Models\User;
 
@@ -58,24 +59,29 @@ test('a component can carry its own supplier/cost independently of its material'
     expect((float) $component->unit_cost)->toBe(123.45);
 });
 
-test('a furniture schedule line links a project and an item', function () {
+test('a project has many quotes, each owning their own furniture schedule lines', function () {
     $project = Project::factory()->create();
+    $quote = Quote::factory()->for($project)->create();
     $item = Item::factory()->create();
 
     $line = FurnitureScheduleLine::factory()
-        ->for($project)
+        ->for($quote)
         ->for($item)
         ->create();
 
-    expect($project->furnitureScheduleLines->first()->is($line))->toBeTrue();
+    expect($project->quotes->first()->is($quote))->toBeTrue();
+    expect($quote->project->is($project))->toBeTrue();
+    expect($quote->furnitureScheduleLines->first()->is($line))->toBeTrue();
+    expect($line->quote->is($quote))->toBeTrue();
     expect($line->item->is($item))->toBeTrue();
 });
 
 test('a purchase order belongs to a project and supplier, and can include multiple schedule lines', function () {
     $project = Project::factory()->create();
     $supplier = Supplier::factory()->create();
-    $line1 = FurnitureScheduleLine::factory()->for($project)->create();
-    $line2 = FurnitureScheduleLine::factory()->for($project)->create();
+    $quote = Quote::factory()->for($project)->create();
+    $line1 = FurnitureScheduleLine::factory()->for($quote)->create();
+    $line2 = FurnitureScheduleLine::factory()->for($quote)->create();
 
     $po = PurchaseOrder::factory()->for($project)->for($supplier)->create();
     $po->scheduleLines()->attach([$line1->id, $line2->id]);

@@ -12,6 +12,7 @@ use App\Models\Material;
 use App\Models\PackagingType;
 use App\Models\Project;
 use App\Models\PurchaseOrder;
+use App\Models\Quote;
 use App\Models\Supplier;
 use App\Models\User;
 
@@ -146,7 +147,8 @@ test("an item's show page brings together its components, materials, finishes, a
     Component::factory()->for($item)->for($material)->create(['name' => 'Frame']);
 
     $project = Project::factory()->create();
-    FurnitureScheduleLine::factory()->for($project)->for($item)->create();
+    $quote = Quote::factory()->for($project)->create();
+    FurnitureScheduleLine::factory()->for($quote)->for($item)->create();
 
     $this->actingAs($this->user)
         ->get(route('items.show', $item))
@@ -157,7 +159,7 @@ test("an item's show page brings together its components, materials, finishes, a
             ->where('item.components.0.name', 'Frame')
             ->where('item.components.0.material.id', $material->id)
             ->where('item.components.0.material.finishes.0.id', $finish->id)
-            ->where('item.schedule_lines.0.project.id', $project->id)
+            ->where('item.schedule_lines.0.quote.project.id', $project->id)
         );
 });
 
@@ -384,24 +386,20 @@ test('a project can be created, updated, and deleted', function () {
             'client_id' => $client->id,
             'pm_user_id' => $pm->id,
             'project_descriptor' => 'Riverside Fitout',
-            'status' => 'quote',
         ])
         ->assertRedirect();
 
     $project = Project::sole();
     expect($project->project_descriptor)->toBe('Riverside Fitout');
-    expect($project->status)->toBe('quote');
 
     $this->actingAs($this->user)
         ->put(route('projects.update', $project), [
             'client_id' => $client->id,
             'pm_user_id' => $pm->id,
             'project_descriptor' => 'Riverside Fitout v2',
-            'status' => 'approved',
         ])
         ->assertRedirect(route('projects.index'));
     expect($project->fresh()->project_descriptor)->toBe('Riverside Fitout v2');
-    expect($project->fresh()->status)->toBe('approved');
 
     $this->actingAs($this->user)
         ->delete(route('projects.destroy', $project))
@@ -409,11 +407,41 @@ test('a project can be created, updated, and deleted', function () {
     expect(Project::count())->toBe(0);
 });
 
-test("a project's show page lists its furniture schedule lines and purchase orders", function () {
+test('a quote can be created, updated, and deleted within a project', function () {
+    $project = Project::factory()->create();
+
+    $this->actingAs($this->user)
+        ->post(route('projects.quotes.store', $project), [
+            'quote_number' => 'Q-100',
+            'status' => 'quote',
+        ])
+        ->assertRedirect(route('projects.show', $project));
+
+    $quote = Quote::sole();
+    expect($quote->project_id)->toBe($project->id);
+    expect($quote->quote_number)->toBe('Q-100');
+    expect($quote->status)->toBe('quote');
+
+    $this->actingAs($this->user)
+        ->put(route('projects.quotes.update', [$project, $quote]), [
+            'quote_number' => 'Q-100',
+            'status' => 'approved',
+        ])
+        ->assertRedirect(route('projects.show', $project));
+    expect($quote->fresh()->status)->toBe('approved');
+
+    $this->actingAs($this->user)
+        ->delete(route('projects.quotes.destroy', [$project, $quote]))
+        ->assertRedirect(route('projects.show', $project));
+    expect(Quote::count())->toBe(0);
+});
+
+test("a project's show page lists its quotes and purchase orders", function () {
     $project = Project::factory()->create(['project_descriptor' => 'Lakeside Fitout']);
     $item = Item::factory()->create();
     $supplier = Supplier::factory()->create();
-    $line = FurnitureScheduleLine::factory()->for($project)->for($item)->create();
+    $quote = Quote::factory()->for($project)->create();
+    $line = FurnitureScheduleLine::factory()->for($quote)->for($item)->create();
     $po = PurchaseOrder::factory()->for($project)->for($supplier)->create();
 
     $this->actingAs($this->user)
@@ -422,60 +450,61 @@ test("a project's show page lists its furniture schedule lines and purchase orde
         ->assertInertia(fn ($page) => $page
             ->component('Projects/Show')
             ->where('project.id', $project->id)
-            ->where('project.furniture_schedule_lines.0.id', $line->id)
+            ->where('project.quotes.0.id', $quote->id)
+            ->where('project.quotes.0.furniture_schedule_lines.0.id', $line->id)
             ->where('project.purchase_orders.0.id', $po->id)
         );
 });
 
-test('a furniture schedule line can be created, updated, and deleted within a project', function () {
-    $project = Project::factory()->create();
+test('a furniture schedule line can be created, updated, and deleted within a quote', function () {
+    $quote = Quote::factory()->create();
     $item = Item::factory()->create();
 
     $this->actingAs($this->user)
-        ->post(route('projects.schedule-lines.store', $project), [
+        ->post(route('quotes.schedule-lines.store', $quote), [
             'item_id' => $item->id,
             'quantity' => 4,
         ])
-        ->assertRedirect(route('projects.schedule-lines.index', $project));
+        ->assertRedirect(route('quotes.schedule-lines.index', $quote));
 
     $line = FurnitureScheduleLine::sole();
-    expect($line->project_id)->toBe($project->id);
+    expect($line->quote_id)->toBe($quote->id);
     expect($line->quantity)->toBe(4);
 
     $this->actingAs($this->user)
-        ->put(route('projects.schedule-lines.update', [$project, $line]), [
+        ->put(route('quotes.schedule-lines.update', [$quote, $line]), [
             'item_id' => $item->id,
             'quantity' => 6,
         ])
-        ->assertRedirect(route('projects.schedule-lines.index', $project));
+        ->assertRedirect(route('quotes.schedule-lines.index', $quote));
     expect($line->fresh()->quantity)->toBe(6);
 
     $this->actingAs($this->user)
-        ->delete(route('projects.schedule-lines.destroy', [$project, $line]))
-        ->assertRedirect(route('projects.schedule-lines.index', $project));
+        ->delete(route('quotes.schedule-lines.destroy', [$quote, $line]))
+        ->assertRedirect(route('quotes.schedule-lines.index', $quote));
     expect(FurnitureScheduleLine::count())->toBe(0);
 });
 
 test('a schedule line with no quantity given falls back to the column default instead of erroring', function () {
-    $project = Project::factory()->create();
+    $quote = Quote::factory()->create();
     $item = Item::factory()->create();
 
     $this->actingAs($this->user)
-        ->post(route('projects.schedule-lines.store', $project), [
+        ->post(route('quotes.schedule-lines.store', $quote), [
             'item_id' => $item->id,
         ])
-        ->assertRedirect(route('projects.schedule-lines.index', $project));
+        ->assertRedirect(route('quotes.schedule-lines.index', $quote));
 
     expect(FurnitureScheduleLine::sole()->quantity)->toBe(1);
 });
 
 test('the schedule line form only offers Fabric-flagged materials on the fabric component pick list', function () {
-    $project = Project::factory()->create();
+    $quote = Quote::factory()->create();
     $fabricMaterial = Material::factory()->create(['name' => 'Linen Fabric', 'is_fabric' => true]);
     $nonFabricMaterial = Material::factory()->create(['name' => 'Oak Timber', 'is_fabric' => false]);
 
     $this->actingAs($this->user)
-        ->get(route('projects.schedule-lines.create', $project))
+        ->get(route('quotes.schedule-lines.create', $quote))
         ->assertInertia(fn ($page) => $page
             ->component('ScheduleLines/Form')
             ->where('materials.0.id', $fabricMaterial->id)
@@ -484,7 +513,7 @@ test('the schedule line form only offers Fabric-flagged materials on the fabric 
 });
 
 test('adding a schedule line for an item with fabric components saves a Material/Finish choice per component', function () {
-    $project = Project::factory()->create();
+    $quote = Quote::factory()->create();
     $item = Item::factory()->create();
     $material = Material::factory()->create(['is_fabric' => true]);
     $finish = Finish::factory()->for($material)->create();
@@ -494,14 +523,14 @@ test('adding a schedule line for an item with fabric components saves a Material
     $cushion = Component::factory()->for($item)->fabric()->create(['name' => 'Cushion']);
 
     $this->actingAs($this->user)
-        ->post(route('projects.schedule-lines.store', $project), [
+        ->post(route('quotes.schedule-lines.store', $quote), [
             'item_id' => $item->id,
             'component_finishes' => [
                 ['component_id' => $upholstery->id, 'material_id' => $material->id, 'finish_id' => $finish->id],
                 ['component_id' => $cushion->id, 'material_id' => '', 'finish_id' => ''],
             ],
         ])
-        ->assertRedirect(route('projects.schedule-lines.index', $project));
+        ->assertRedirect(route('quotes.schedule-lines.index', $quote));
 
     $line = FurnitureScheduleLine::sole();
     expect(ComponentFinish::count())->toBe(1);
@@ -513,14 +542,14 @@ test('adding a schedule line for an item with fabric components saves a Material
     expect($componentFinish->finish_id)->toBe($finish->id);
 
     $this->actingAs($this->user)
-        ->put(route('projects.schedule-lines.update', [$project, $line]), [
+        ->put(route('quotes.schedule-lines.update', [$quote, $line]), [
             'item_id' => $item->id,
             'component_finishes' => [
                 ['component_id' => $upholstery->id, 'material_id' => $otherMaterial->id, 'finish_id' => ''],
                 ['component_id' => $cushion->id, 'material_id' => '', 'finish_id' => ''],
             ],
         ])
-        ->assertRedirect(route('projects.schedule-lines.index', $project));
+        ->assertRedirect(route('quotes.schedule-lines.index', $quote));
 
     $componentFinish = ComponentFinish::sole();
     expect($componentFinish->material_id)->toBe($otherMaterial->id);
@@ -528,7 +557,7 @@ test('adding a schedule line for an item with fabric components saves a Material
 });
 
 test('a non-fabric component always uses its own fixed Material - only its Finish is chosen on the schedule line', function () {
-    $project = Project::factory()->create();
+    $quote = Quote::factory()->create();
     $item = Item::factory()->create();
     $material = Material::factory()->create(['is_fabric' => false]);
     $finish = Finish::factory()->for($material)->create();
@@ -537,7 +566,7 @@ test('a non-fabric component always uses its own fixed Material - only its Finis
     $frame = Component::factory()->for($item)->for($material)->create(['name' => 'Frame']);
 
     $this->actingAs($this->user)
-        ->post(route('projects.schedule-lines.store', $project), [
+        ->post(route('quotes.schedule-lines.store', $quote), [
             'item_id' => $item->id,
             // A tampered/mismatched material_id must be ignored - the
             // component's own fixed material always wins.
@@ -545,7 +574,7 @@ test('a non-fabric component always uses its own fixed Material - only its Finis
                 ['component_id' => $frame->id, 'material_id' => $unrelatedMaterial->id, 'finish_id' => $finish->id],
             ],
         ])
-        ->assertRedirect(route('projects.schedule-lines.index', $project));
+        ->assertRedirect(route('quotes.schedule-lines.index', $quote));
 
     $line = FurnitureScheduleLine::sole();
     $componentFinish = ComponentFinish::sole();
@@ -557,6 +586,7 @@ test('a non-fabric component always uses its own fixed Material - only its Finis
 
 test('a schedule line is flagged as needing finishes until every one of its item\'s components has one', function () {
     $project = Project::factory()->create();
+    $quote = Quote::factory()->for($project)->create();
     $item = Item::factory()->create();
     $material = Material::factory()->create(['is_fabric' => false]);
     $finish = Finish::factory()->for($material)->create();
@@ -564,7 +594,7 @@ test('a schedule line is flagged as needing finishes until every one of its item
     $frame = Component::factory()->for($item)->for($material)->create(['name' => 'Frame']);
     $legs = Component::factory()->for($item)->for($material)->create(['name' => 'Legs']);
 
-    $line = FurnitureScheduleLine::factory()->for($project)->for($item)->create();
+    $line = FurnitureScheduleLine::factory()->for($quote)->for($item)->create();
     $line->componentFinishes()->create([
         'component_id' => $frame->id,
         'material_id' => $material->id,
@@ -573,7 +603,7 @@ test('a schedule line is flagged as needing finishes until every one of its item
     // Legs has no ComponentFinish row at all yet - still incomplete.
 
     $this->actingAs($this->user)
-        ->get(route('projects.schedule-lines.index', $project))
+        ->get(route('quotes.schedule-lines.index', $quote))
         ->assertInertia(fn ($page) => $page
             ->component('ScheduleLines/Index')
             ->where('lines.0.needs_finishes', true)
@@ -583,7 +613,8 @@ test('a schedule line is flagged as needing finishes until every one of its item
         ->get(route('projects.show', $project))
         ->assertInertia(fn ($page) => $page
             ->component('Projects/Show')
-            ->where('project.furniture_schedule_lines.0.needs_finishes', true)
+            ->where('project.quotes.0.furniture_schedule_lines.0.needs_finishes', true)
+            ->where('project.quotes.0.needs_finishes', true)
         );
 
     $line->componentFinishes()->create([
@@ -593,7 +624,7 @@ test('a schedule line is flagged as needing finishes until every one of its item
     ]);
 
     $this->actingAs($this->user)
-        ->get(route('projects.schedule-lines.index', $project))
+        ->get(route('quotes.schedule-lines.index', $quote))
         ->assertInertia(fn ($page) => $page
             ->component('ScheduleLines/Index')
             ->where('lines.0.needs_finishes', false)
@@ -631,9 +662,9 @@ test('a purchase order can be created, updated, and deleted within a project', f
     expect(PurchaseOrder::count())->toBe(0);
 });
 
-test('the Quotes page lists projects grouped by status', function () {
-    $quote = Project::factory()->create(['status' => 'quote', 'project_descriptor' => 'Quote Stage']);
-    $approved = Project::factory()->create(['status' => 'approved', 'project_descriptor' => 'Approved Stage']);
+test('the Quotes page lists quotes grouped by status', function () {
+    $quote = Quote::factory()->create(['status' => 'quote']);
+    $approved = Quote::factory()->create(['status' => 'approved']);
 
     $this->actingAs($this->user)
         ->get(route('quotes.index'))

@@ -7,16 +7,12 @@ import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Form({ project, clients, users }) {
     const isNew = !project;
-    const title = isNew ? 'Add Project' : `Edit ${project.project_descriptor ?? project.quote_number ?? 'Project'}`;
+    const title = isNew ? 'Add Project' : `Edit ${project.project_descriptor ?? 'Project'}`;
 
     const { data, setData, post, put, processing, errors } = useForm({
-        quote_number: project?.quote_number ?? '',
         client_id: project?.client_id ?? '',
         pm_user_id: project?.pm_user_id ?? '',
         project_descriptor: project?.project_descriptor ?? '',
-        version: project?.version ?? 1,
-        date: project?.date ?? '',
-        status: project?.status ?? 'quote',
         site_name: project?.site_name ?? '',
         site_address: project?.site_address ?? '',
         site_contact_name: project?.site_contact_name ?? '',
@@ -83,60 +79,6 @@ export default function Form({ project, clients, users }) {
                         <InputError message={errors.project_descriptor} className="mt-1" />
                     </div>
 
-                    <div className="grid grid-cols-3 gap-4">
-                        <div>
-                            <InputLabel htmlFor="quote_number" value="Quote No." />
-                            <TextInput
-                                id="quote_number"
-                                className="mt-1 block w-full"
-                                value={data.quote_number}
-                                onChange={(e) => setData('quote_number', e.target.value)}
-                            />
-                            <InputError message={errors.quote_number} className="mt-1" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="version" value="Version" />
-                            <TextInput
-                                id="version"
-                                type="number"
-                                min="1"
-                                className="mt-1 block w-full"
-                                value={data.version}
-                                onChange={(e) => setData('version', e.target.value)}
-                            />
-                            <InputError message={errors.version} className="mt-1" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="date" value="Date" />
-                            <TextInput
-                                id="date"
-                                type="date"
-                                className="mt-1 block w-full"
-                                value={data.date}
-                                onChange={(e) => setData('date', e.target.value)}
-                            />
-                            <InputError message={errors.date} className="mt-1" />
-                        </div>
-                    </div>
-
-                    <div>
-                        <InputLabel htmlFor="status" value="Status" />
-                        <Select
-                            id="status"
-                            className="mt-1 block w-full"
-                            value={data.status}
-                            onChange={(e) => setData('status', e.target.value)}
-                        >
-                            <option value="quote">Quote</option>
-                            <option value="complete">Complete</option>
-                            <option value="approved">Approved</option>
-                            <option value="cancelled">Cancelled</option>
-                        </Select>
-                        <InputError message={errors.status} className="mt-1" />
-                    </div>
-
                     <div className="border-t pt-4">
                         <h3 className="text-sm font-medium text-gray-700 mb-2">Site Details</h3>
 
@@ -183,12 +125,6 @@ export default function Form({ project, clients, users }) {
                                 className="px-4 py-2 text-sm bg-gray-100 rounded-md hover:bg-gray-200"
                             >
                                 View Full Project →
-                            </Link>
-                            <Link
-                                href={route('projects.schedule-lines.index', project.id)}
-                                className="px-4 py-2 text-sm bg-gray-100 rounded-md hover:bg-gray-200"
-                            >
-                                Furniture Schedule →
                             </Link>
                             <Link
                                 href={route('projects.purchase-orders.index', project.id)}
