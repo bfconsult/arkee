@@ -67,19 +67,19 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Avatars share the same public storage bucket as Item images (see
+     * Attachment::getFileUrlAttribute) - not signed, since the bucket is
+     * public-read by design and R2 manages visibility at the bucket level,
+     * not per-object.
+     */
     public function getAvatarUrlAttribute(): ?string
     {
         if (!$this->avatar) {
             return null;
         }
 
-        $disk = Storage::disk(config('filesystems.default'));
-
-        // S3 buckets aren't necessarily public-readable, so use a signed URL
-        // rather than assuming a public ACL/bucket policy is in place.
-        return config('filesystems.default') === 's3'
-            ? $disk->temporaryUrl($this->avatar, now()->addHour())
-            : $disk->url($this->avatar);
+        return Storage::disk(config('filesystems.default'))->url($this->avatar);
     }
 
     /**

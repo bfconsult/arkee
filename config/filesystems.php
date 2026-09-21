@@ -47,7 +47,11 @@ return [
             'report' => false,
         ],
 
-        's3' => [
+        // Disk key must match the "disk name" chosen when the bucket was
+        // created in the Laravel Cloud dashboard - that's what Cloud sets
+        // FILESYSTEM_DISK to. The "driver" below is the Flysystem adapter
+        // type (s3-compatible), unrelated to this key's name.
+        'arkee_images' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
