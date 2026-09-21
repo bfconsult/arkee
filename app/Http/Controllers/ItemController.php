@@ -24,6 +24,7 @@ class ItemController extends Controller
             'itemCategory',
             'packagingType',
             'supplier',
+            'attachments',
             'components.material.finishes',
             'components.material.supplier',
             'components.supplier',

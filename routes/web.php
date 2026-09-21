@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\DeliveryLocationController;
@@ -70,6 +71,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('materials.finishes', FinishController::class)->except('show');
     Route::resource('items', ItemController::class);
     Route::resource('items.components', ComponentController::class)->except('show');
+    Route::resource('items.attachments', AttachmentController::class)->only(['store', 'destroy']);
     Route::get('quotes', [QuoteController::class, 'index'])->name('quotes.index');
     Route::resource('projects', ProjectController::class);
     Route::resource('projects.quotes', QuoteController::class)->except(['index', 'show']);

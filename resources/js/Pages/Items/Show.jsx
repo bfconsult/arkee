@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import ItemImages from '@/Components/ItemImages';
 import { Head, Link } from '@inertiajs/react';
 
 function field(label, value) {
@@ -49,6 +50,8 @@ export default function Show({ item }) {
                     </div>
                 )}
             </div>
+
+            <ItemImages item={item} />
 
             <div className="bg-white rounded-lg shadow p-6 mb-6">
                 <div className="flex justify-between items-center mb-4">
